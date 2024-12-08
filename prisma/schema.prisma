@@ -1,0 +1,82 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Chat {
+  id         String    @id @map("_id")
+  createdAt  DateTime  @default(now())
+  title      String
+  userId     String
+  visibility String    @default("private")
+  messages   Message[]
+  votes      Vote[]
+
+  @@map("chats")
+}
+
+model Message {
+  id        String   @id @map("_id")
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  role      String
+  content   Json
+  createdAt DateTime @default(now())
+  votes     Vote[]
+
+  @@map("messages")
+}
+
+model Vote {
+  id        String  @id @map("_id")
+  chatId    String
+  chat      Chat    @relation(fields: [chatId], references: [id])
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id])
+  isUpvoted Boolean
+
+  @@unique([chatId, messageId])
+  @@map("votes")
+}
+
+model Document {
+  id        String   @id @map("_id")
+  title     String
+  content   Json
+  userId    String
+  createdAt DateTime @default(now())
+  suggestions Suggestion[]
+
+  @@map("documents")
+}
+
+model Suggestion {
+  id                String   @id @map("_id")
+  documentId        String
+  document          Document @relation(fields: [documentId], references: [id])
+  originalText      String
+  suggestedText    String
+  description      String?
+  isResolved       Boolean  @default(false)
+  userId           String
+  createdAt        DateTime @default(now())
+  documentCreatedAt DateTime
+
+  @@map("Suggestion")
+}
+
+model UserGoogleCalendar {
+  id           String   @id @map("_id")
+  userId       String   @unique
+  accessToken  String
+  refreshToken String
+  tokenExpiry  DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("userGoogleCalendars")
+}
