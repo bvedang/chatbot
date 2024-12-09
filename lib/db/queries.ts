@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Suggestion } from "@prisma/client";
 import type { Message } from "@prisma/client";
+import { ObjectId } from "mongodb";
 
 const prisma = new PrismaClient();
 
@@ -69,7 +70,10 @@ export async function getChatById({ id }: { id: string }) {
 export async function saveMessages({ messages }: { messages: Array<Message> }) {
   try {
     return await prisma.message.createMany({
-      data: messages,
+      data: messages.map((message) => ({
+        ...message,
+        content: message.content ?? {},
+      })),
     });
   } catch (error) {
     console.error("Failed to save messages in database");
@@ -99,29 +103,18 @@ export async function voteMessage({
   type: "up" | "down";
 }) {
   try {
-    const existingVote = await prisma.vote.findUnique({
+    return await prisma.vote.upsert({
       where: {
         chatId_messageId: {
           chatId,
           messageId,
         },
       },
-    });
-
-    if (existingVote) {
-      return await prisma.vote.update({
-        where: {
-          chatId_messageId: {
-            chatId,
-            messageId,
-          },
-        },
-        data: { isUpvoted: type === "up" },
-      });
-    }
-
-    return await prisma.vote.create({
-      data: {
+      update: {
+        isUpvoted: type === "up",
+      },
+      create: {
+        id: new ObjectId().toString(),
         chatId,
         messageId,
         isUpvoted: type === "up",
@@ -191,5 +184,19 @@ export async function updateChatVisiblityById({
   } catch (error) {
     console.error("Failed to update chat visibility in database");
     throw error;
+  }
+}
+
+export async function saveSuggestions({
+  suggestions,
+}: {
+  suggestions: Array<Suggestion>;
+}) {
+  try {
+    return await prisma.suggestion.createMany({
+      data: suggestions,
+    });
+  } catch (error) {
+    console.error("Failed to save suggestions in database");
   }
 }

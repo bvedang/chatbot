@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { CalendarIcon, Clock, MapPin, User, Users, Video } from "lucide-react";
+import { MapPin, Pencil, Users, Video } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 interface ConferenceData {
   type?: string;
@@ -35,6 +36,7 @@ interface CalendarEvent {
   end: EventDateTime;
   location?: string;
   creator?: Creator;
+  link?: string;
   attendees?: Attendee[];
   hangoutLink?: string;
   conferenceData?: ConferenceData;
@@ -92,10 +94,22 @@ export default function CalendarEventsList({ events }: Props) {
               <EventDateTime dateTime={event.start} /> -{" "}
               <EventDateTime dateTime={event.end} />
             </div>
+            {event.link && (
+              <a
+                href={event.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block"
+              >
+                <Button size="sm" className="text-xs sm:text-sm mb-2">
+                  <Pencil className="size-4" /> Edit Event
+                </Button>
+              </a>
+            )}
           </CardHeader>
           <CardContent>
             {event.description && (
-              <p className="text-sm mb-4">{event.description}</p>
+              <p className="text-sm mb-2">{event.description}</p>
             )}
 
             <div className="space-y-2">
@@ -122,7 +136,7 @@ export default function CalendarEventsList({ events }: Props) {
 
               {event.attendees && event.attendees.length > 0 && (
                 <div className="flex items-start gap-2 text-sm">
-                  <User className="h-4 w-4 mt-1" />
+                  <Users className="h-4 w-4 mt-1" />
                   <div className="flex flex-wrap gap-1">
                     {event.attendees.map((attendee, index) => (
                       <span

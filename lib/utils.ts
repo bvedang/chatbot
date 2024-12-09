@@ -8,11 +8,13 @@ import type {
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import type { Message as DBMessage, Document } from "@/lib/db/schema";
+import type { Message as DBMessage, Document, Prisma } from "@prisma/client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+type JsonValue = Prisma.JsonValue;
 
 interface ApplicationError extends Error {
   info: string;
@@ -90,7 +92,7 @@ export function convertToUIMessages(
   return messages.reduce((chatMessages: Array<Message>, message) => {
     if (message.role === "tool") {
       return addToolMessageToChat({
-        toolMessage: message as CoreToolMessage,
+        toolMessage: message as unknown as CoreToolMessage,
         messages: chatMessages,
       });
     }
@@ -102,9 +104,9 @@ export function convertToUIMessages(
       textContent = message.content;
     } else if (Array.isArray(message.content)) {
       for (const content of message.content) {
-        if (content.type === "text") {
+        if (content !== null && content.type === "text") {
           textContent += content.text;
-        } else if (content.type === "tool-call") {
+        } else if (content !== null && content.type === "tool-call") {
           toolInvocations.push({
             state: "call",
             toolCallId: content.toolCallId,

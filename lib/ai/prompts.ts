@@ -1,4 +1,30 @@
-const currentDateTime = new Date().toLocaleDateString();
+function getCurrentDateTime() {
+  const now = new Date();
+  const offset = -now.getTimezoneOffset();
+  const sign = offset >= 0 ? "+" : "-";
+  const pad = (num: number) =>
+    String(Math.floor(Math.abs(num))).padStart(2, "0");
+
+  return (
+    now.getFullYear() +
+    "-" +
+    pad(now.getMonth() + 1) +
+    "-" +
+    pad(now.getDate()) +
+    "T" +
+    pad(now.getHours()) +
+    ":" +
+    pad(now.getMinutes()) +
+    ":" +
+    pad(now.getSeconds()) +
+    sign +
+    pad(offset / 60) +
+    ":" +
+    pad(offset % 60)
+  );
+}
+
+const currentDateTime = getCurrentDateTime();
 
 export const blocksPrompt = `
   Blocks is a special user interface mode that helps users with writing, editing, and other content creation tasks. When block is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the blocks and visible to the user.
@@ -30,7 +56,7 @@ export const calendarPrompt = `
   Calendar Tools Guide:
   - \`createCalendarEvent\`: Use when the user requests scheduling events.
     - Can create both single and multiple related events (like work sessions with breaks)
-    - Ensure that start times are not in the past. The current date/time is \${currentDateTime}
+    - Ensure that start times are not in the past. The current date/time is \ ${currentDateTime}
     - Default duration is 1 hour if no end time is provided
     - For multiple events, properly sequence them without overlaps
     

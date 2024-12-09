@@ -134,7 +134,7 @@ const PurePreviewMessage = ({
 
                 if (state === "result") {
                   const { result } = toolInvocation;
-                  console.log(result);
+
                   return (
                     <div key={toolCallId}>
                       {toolName === "getWeather" ? (

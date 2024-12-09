@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { auth } from "@clerk/nextjs/server";
-import { PrismaClient } from "@prisma/client";
+import { Message, PrismaClient, Suggestion } from "@prisma/client";
 import {
   CoreUserMessage,
   StreamData,
@@ -16,8 +16,15 @@ import {
   getMostRecentUserMessage,
   sanitizeResponseMessages,
 } from "@/lib/utils";
+
+import {
+  getChatById,
+  saveChat,
+  saveMessages,
+  saveSuggestions,
+} from "@/lib/db/queries";
 import { generateTitleFromUserMessage } from "../../actions";
-import { google } from "googleapis";
+import { calendar_v3, google } from "googleapis";
 import {
   CalendarEvent,
   CalendarEventResponse,
@@ -114,30 +121,24 @@ export async function POST(request: Request) {
     return new Response("No user message found", { status: 400 });
   }
 
-  const chat = await prisma.chat.findUnique({ where: { id } });
+  const chat = await getChatById({ id });
   if (!chat) {
     const title = await generateTitleFromUserMessage({
       message: userMessage as CoreUserMessage,
     });
-    await prisma.chat.create({
-      data: {
-        id,
-        userId,
-        title,
-        createdAt: new Date(),
-      },
-    });
+    await saveChat({ id, userId, title });
   }
 
   const userMessageId = generateUUID();
-  await prisma.message.create({
-    data: {
-      id: userMessageId,
-      chatId: id,
-      role: userMessage.role,
-      content: userMessage.content as string,
-      createdAt: new Date(),
-    },
+  await saveMessages({
+    messages: [
+      {
+        ...(userMessage as Message),
+        id: userMessageId,
+        createdAt: new Date(),
+        chatId: id,
+      },
+    ],
   });
 
   const streamingData = new StreamData();
@@ -281,11 +282,13 @@ export async function POST(request: Request) {
           const document = await prisma.document.findUnique({
             where: { id: documentId },
           });
-          if (!document?.content) {
+          if (!document || !document.content) {
             return { error: "Document not found" };
           }
 
-          const suggestions = [];
+          const suggestions: Array<
+            Omit<Suggestion, "userId" | "createdAt" | "documentCreatedAt">
+          > = [];
           const { elementStream } = streamObject({
             model: customModel(model.apiIdentifier),
             system:
@@ -309,16 +312,23 @@ export async function POST(request: Request) {
               id: generateUUID(),
               documentId,
               isResolved: false,
-              userId,
-              createdAt: new Date(),
             };
 
-            streamingData.append({ type: "suggestion", content: suggestion });
+            streamingData.append({
+              type: "suggestion",
+              content: suggestion,
+            });
+
             suggestions.push(suggestion);
           }
 
-          await prisma.suggestion.createMany({
-            data: suggestions,
+          await saveSuggestions({
+            suggestions: suggestions.map((suggestion) => ({
+              ...suggestion,
+              userId,
+              createdAt: new Date(),
+              documentCreatedAt: document.createdAt,
+            })),
           });
 
           return {
@@ -527,7 +537,6 @@ export async function POST(request: Request) {
 
             // Create all events
             const results: any[] = [];
-            console.log(events);
             for (const event of events) {
               const response = await calendar.events.insert({
                 calendarId: "primary",
@@ -600,48 +609,33 @@ export async function POST(request: Request) {
           } catch (error) {
             console.error("Failed to create calendar event:", error);
             return {
-              error: `Failed to create calendar event: ${error.message}`,
+              error: `Failed to create calendar event: ${error}`,
             };
           }
         },
       },
 
       listCalendarEvents: {
-        description: "List upcoming events from Google Calendar",
+        description:
+          "List upcoming events from all of the user's Google Calendars",
         parameters: z.object({
-          maxResults: z
-            .number()
-            .optional()
-            .describe("Maximum number of events to return"),
-          timeMin: z.string().optional().describe("Start time in ISO format"),
-          timeMax: z.string().optional().describe("End time in ISO format"),
-          showDeleted: z
-            .boolean()
-            .optional()
-            .describe("Whether to include deleted events"),
-          calendarId: z
-            .string()
-            .optional()
-            .describe("Calendar ID to fetch events from. Defaults to primary"),
-          orderBy: z
-            .enum(["startTime", "updated"])
-            .optional()
-            .describe("Order of events returned"),
-          q: z
-            .string()
-            .optional()
-            .describe("Free text search terms to find events that match"),
+          maxResults: z.number().optional(),
+          timeMin: z.string().optional(),
+          timeMax: z.string().optional(),
+          showDeleted: z.boolean().optional(),
+          orderBy: z.enum(["startTime", "updated"]).optional(),
+          q: z.string().optional(),
         }),
         execute: async ({
           maxResults = 10,
           timeMin,
           timeMax,
           showDeleted = false,
-          calendarId = "primary",
           orderBy = "startTime",
           q,
         }) => {
           try {
+            // Retrieve user creds
             const userCalendarCreds =
               await prisma.userGoogleCalendar.findUnique({
                 where: { userId },
@@ -659,26 +653,30 @@ export async function POST(request: Request) {
               refresh_token: userCalendarCreds.refreshToken,
             });
 
-            const response = await calendar.events.list({
-              calendarId,
-              timeMin: timeMin || new Date().toISOString(),
-              timeMax,
-              maxResults,
-              singleEvents: true,
-              orderBy,
-              showDeleted,
-              q,
+            // Get all calendars for the user
+            const calendarListResponse = await calendar.calendarList.list({
+              auth: oauth2Client,
             });
+            const userCalendars = calendarListResponse.data.items || [];
 
-            const events = response.data.items;
+            let allEvents: any = [];
 
-            streamingData.append({
-              type: "calendar-events-list",
-              content: events,
-            });
+            for (const cal of userCalendars) {
+              const response = await calendar.events.list({
+                auth: oauth2Client,
+                calendarId: cal.id as string,
+                timeMin: timeMin || new Date().toISOString(),
+                timeMax,
+                maxResults,
+                singleEvents: true,
+                orderBy,
+                showDeleted,
+                q,
+              });
 
-            return {
-              events: events?.map((event) => ({
+              const events = response.data.items || [];
+              const processedEvents = events.map((event) => ({
+                calendarId: cal.id,
                 id: event.id,
                 summary: event.summary,
                 description: event.description,
@@ -689,6 +687,7 @@ export async function POST(request: Request) {
                   email: event.creator?.email,
                   displayName: event.creator?.displayName,
                 },
+                link: event.htmlLink,
                 attendees: event.attendees?.map((attendee) => ({
                   email: attendee.email,
                   displayName: attendee.displayName,
@@ -703,9 +702,32 @@ export async function POST(request: Request) {
                   : undefined,
                 recurringEventId: event.recurringEventId,
                 status: event.status,
-              })),
-              count: events?.length || 0,
-              nextPageToken: response.data.nextPageToken,
+              }));
+
+              allEvents = [...allEvents, ...processedEvents];
+            }
+
+            // Optionally sort by start time
+            allEvents.sort(
+              (a: calendar_v3.Schema$Event, b: calendar_v3.Schema$Event) => {
+                const aStart = new Date(
+                  a.start?.dateTime || a.start?.date || 0
+                );
+                const bStart = new Date(
+                  b.start?.dateTime || b.start?.date || 0
+                );
+                return aStart.getTime() - bStart.getTime();
+              }
+            );
+
+            streamingData.append({
+              type: "calendar-events-list",
+              content: allEvents,
+            });
+
+            return {
+              events: allEvents,
+              count: allEvents.length,
             };
           } catch (error) {
             console.error("Failed to list calendar events:", error);
@@ -721,26 +743,26 @@ export async function POST(request: Request) {
       try {
         const responseMessagesWithoutIncompleteToolCalls =
           sanitizeResponseMessages(response.messages);
-        const messages = responseMessagesWithoutIncompleteToolCalls.map(
-          (message) => ({
-            id: generateUUID(),
-            chatId: id,
-            role: message.role,
-            content: message.content,
-            createdAt: new Date(),
-          })
-        );
+        await saveMessages({
+          messages: responseMessagesWithoutIncompleteToolCalls.map(
+            (message) => {
+              const messageId = generateUUID();
 
-        await prisma.message.createMany({
-          data: messages,
-        });
+              if (message.role === "assistant") {
+                streamingData.appendMessageAnnotation({
+                  messageIdFromServer: messageId,
+                });
+              }
 
-        messages.forEach((message) => {
-          if (message.role === "assistant") {
-            streamingData.appendMessageAnnotation({
-              messageIdFromServer: message.id,
-            });
-          }
+              return {
+                id: messageId,
+                chatId: id,
+                role: message.role,
+                content: message.content ?? {},
+                createdAt: new Date(),
+              };
+            }
+          ) as Message[],
         });
       } catch (error) {
         console.error("Failed to save chat", error);

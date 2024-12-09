@@ -1,5 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
+import { getVotesByChatId, voteMessage } from "@/lib/db/queries";
+import { ObjectId } from "mongodb";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -17,13 +20,12 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const votes = await prisma.vote.findMany({
-    where: {
-      chatId: chatId,
-    },
-  });
-
-  return Response.json(votes, { status: 200 });
+  try {
+    const votes = await getVotesByChatId({ id: chatId });
+    return NextResponse.json(votes, { status: 200 });
+  } catch (error) {
+    return new Response("Failed to fetch votes", { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -39,24 +41,14 @@ export async function PATCH(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const isUpvoted = type === "upvote";
-
-  await prisma.vote.upsert({
-    where: {
-      chatId_messageId: {
-        chatId: chatId,
-        messageId: messageId,
-      },
-    },
-    update: {
-      isUpvoted: isUpvoted,
-    },
-    create: {
-      chatId: chatId,
-      messageId: messageId,
-      isUpvoted: isUpvoted,
-    },
-  });
-
-  return new Response("Message voted", { status: 200 });
+  try {
+    await voteMessage({
+      chatId,
+      messageId,
+      type: type === "upvote" ? "up" : "down",
+    });
+    return new Response("Message voted", { status: 200 });
+  } catch (error) {
+    return new Response("Failed to vote message", { status: 500 });
+  }
 }
