@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useMemo, useOptimistic, useState } from "react";
+import { startTransition, useMemo, useState } from "react";
 
 import { saveModelId } from "@/app/(chat)/actions";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,11 @@ export function ModelSelector({
   selectedModelId: string;
 } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
-  const [optimisticModelId, setOptimisticModelId] =
-    useOptimistic(selectedModelId);
+  const [currentModelId, setCurrentModelId] = useState(selectedModelId);
 
   const selectedModel = useMemo(
-    () => models.find((model) => model.id === optimisticModelId),
-    [optimisticModelId]
+    () => models.find((model) => model.id === currentModelId),
+    [currentModelId]
   );
 
   return (
@@ -52,12 +51,12 @@ export function ModelSelector({
               setOpen(false);
 
               startTransition(() => {
-                setOptimisticModelId(model.id);
+                setCurrentModelId(model.id);
                 saveModelId(model.id);
               });
             }}
             className="gap-4 group/item flex flex-row justify-between items-center"
-            data-active={model.id === optimisticModelId}
+            data-active={model.id === currentModelId}
           >
             <div className="flex flex-col gap-1 items-start">
               {model.label}

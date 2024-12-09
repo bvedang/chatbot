@@ -104,13 +104,19 @@ export function convertToUIMessages(
       textContent = message.content;
     } else if (Array.isArray(message.content)) {
       for (const content of message.content) {
+        //@ts-ignore
         if (content !== null && content.type === "text") {
+          //@ts-ignore
           textContent += content.text;
+          //@ts-ignore
         } else if (content !== null && content.type === "tool-call") {
           toolInvocations.push({
             state: "call",
+            //@ts-ignore
             toolCallId: content.toolCallId,
+            //@ts-ignore
             toolName: content.toolName,
+            //@ts-ignore
             args: content.args,
           });
         }
