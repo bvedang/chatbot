@@ -81,7 +81,7 @@ const GoogleCalendarAuth = () => {
                 variant="outline"
                 className="w-full sm:w-auto flex items-center gap-2 bg-secondary hover:bg-secondary/80 cursor-default border-border"
               >
-                <CheckCircle className="w-4 h-4 text-primary" />
+                <CheckCircle className="w-4 h-4 text-green-500" />
                 <span className="text-secondary-foreground">
                   Connected to Google Calendar
                 </span>

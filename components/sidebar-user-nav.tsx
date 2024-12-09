@@ -1,12 +1,13 @@
 "use client";
-import { ChevronUp } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { ChevronUp, Moon, Sun, LogOut } from "lucide-react";
+import { UserButton, useClerk } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -17,6 +18,16 @@ import {
 
 export function SidebarUserNav({ user }: { user: any }) {
   const { setTheme, theme } = useTheme();
+  const { signOut } = useClerk();
+  const handleSignOut = () => {
+    signOut()
+      .then(() => {
+        window.location.href = "/sign-in";
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
+  };
 
   return (
     <SidebarMenu>
@@ -43,10 +54,23 @@ export function SidebarUserNav({ user }: { user: any }) {
             className="w-[--radix-popper-anchor-width]"
           >
             <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer flex items-center gap-2"
               onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {`Toggle ${theme === "light" ? "dark" : "light"} mode`}
+              {theme === "light" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
+              {`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="cursor-pointer flex items-center gap-2"
+              onSelect={handleSignOut}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
