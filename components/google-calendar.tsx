@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const GoogleCalendarAuth = () => {
   const [connectionStatus, setConnectionStatus] = useState<{
@@ -62,27 +63,24 @@ const GoogleCalendarAuth = () => {
         isLoading: false,
         error: "Failed to connect to Google Calendar",
       }));
+      toast("Auth Failed", {
+        description: "Failed to connect to Google Calendar",
+      });
     }
   };
 
   return (
     <div className="space-y-4">
-      {connectionStatus.error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{connectionStatus.error}</AlertDescription>
-        </Alert>
-      )}
-
       {connectionStatus.isConnected ? (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full sm:w-auto flex items-center gap-2 bg-secondary hover:bg-secondary/80 cursor-default border-border"
+                className="flex items-center gap-2 bg-background hover:bg-secondary/80 cursor-default border-border"
               >
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span className="text-secondary-foreground">
+                <span className="hidden sm:inline text-secondary-foreground">
                   Connected to Google Calendar
                 </span>
               </Button>
@@ -95,7 +93,7 @@ const GoogleCalendarAuth = () => {
       ) : (
         <Button
           onClick={handleAuth}
-          className="w-full sm:w-auto flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           disabled={connectionStatus.isLoading}
         >
           {connectionStatus.isLoading ? (
@@ -103,9 +101,11 @@ const GoogleCalendarAuth = () => {
           ) : (
             <Calendar className="w-4 h-4" />
           )}
-          {connectionStatus.isLoading
-            ? "Connecting..."
-            : "Connect Google Calendar"}
+          <span className="hidden sm:inline">
+            {connectionStatus.isLoading
+              ? "Connecting..."
+              : "Connect Google Calendar"}
+          </span>
         </Button>
       )}
     </div>

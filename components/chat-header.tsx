@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useWindowSize } from "usehooks-ts";
+import { memo } from "react";
 
 import { ModelSelector } from "@/components/model-selector";
 import { SidebarToggle } from "@/components/sidebar-toggle";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, VercelIcon } from "./icons";
 import { useSidebar } from "./ui/sidebar";
-import { memo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { type VisibilityType, VisibilitySelector } from "./visibility-selector";
 import GoogleCalendarAuth from "./google-calendar";
@@ -27,7 +27,6 @@ function PureChatHeader({
 }) {
   const router = useRouter();
   const { open } = useSidebar();
-
   const { width: windowWidth } = useWindowSize();
 
   return (
@@ -39,14 +38,14 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
+              className="flex items-center gap-2 order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
               onClick={() => {
                 router.push("/");
                 router.refresh();
               }}
             >
-              <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+              <PlusIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">New Chat</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>New Chat</TooltipContent>
