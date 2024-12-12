@@ -13,6 +13,7 @@ import { useSidebar } from "./ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { type VisibilityType, VisibilitySelector } from "./visibility-selector";
 import GoogleCalendarAuth from "./google-calendar";
+import { Plus, PlusSquareIcon } from "lucide-react";
 
 function PureChatHeader({
   chatId,
@@ -44,7 +45,7 @@ function PureChatHeader({
                 router.refresh();
               }}
             >
-              <PlusIcon className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Chat</span>
             </Button>
           </TooltipTrigger>
