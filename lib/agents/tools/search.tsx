@@ -1,6 +1,6 @@
-import { tool } from "ai";
-import { createStreamableUI } from "ai/rsc";
-import { createStreamableValue } from "ai/rsc";
+import { tool, StreamData } from "ai";
+import { headers } from "next/headers";
+import { createStreamableUI, createStreamableValue } from "ai/rsc";
 import { searchSchema } from "@/lib/schema/search";
 import { SearchSection } from "@/components/search-section";
 import {
@@ -9,14 +9,15 @@ import {
   SearchResultItem,
   SearXNGResponse,
   SearXNGResult,
+  SearchResults as SearchResultsType,
 } from "@/lib/types";
 
 export interface ToolProps {
-  uiStream: ReturnType<typeof createStreamableUI>;
+  streamingData: StreamData;
   fullResponse: string;
 }
 
-export const searchTool = ({ uiStream, fullResponse }: ToolProps) =>
+export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
   tool({
     description: "Search the web for information",
     parameters: searchSchema,
@@ -28,55 +29,29 @@ export const searchTool = ({ uiStream, fullResponse }: ToolProps) =>
       exclude_domains,
     }) => {
       let hasError = false;
-      const streamResults = createStreamableValue<string>();
-      uiStream.append(
-        <SearchSection
-          result={streamResults.value}
-          includeDomains={include_domains}
-        />
-      );
+      streamingData.append({
+        type: "search-start",
+        content: {
+          query,
+          includeDomains: include_domains || [],
+        },
+      });
 
       // Tavily API requires a minimum of 5 characters in the query
       const filledQuery =
         query.length < 5 ? query + " ".repeat(5 - query.length) : query;
       let searchResult: SearchResults;
 
-      const effectiveSearchDepth =
-        process.env.SEARXNG_DEFAULT_DEPTH === "advanced"
-          ? "advanced"
-          : search_depth || "basic";
+      const effectiveSearchDepth = process.env.SEARXNG_DEFAULT_DEPTH;
 
       try {
-        if (effectiveSearchDepth === "advanced") {
-          // API route for advanced SearXNG search
-          const baseUrl =
-            process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-          const response = await fetch(`${baseUrl}/api/advanced-search`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              query: filledQuery,
-              maxResults: max_results,
-              searchDepth: effectiveSearchDepth,
-              includeDomains: include_domains,
-              excludeDomains: exclude_domains,
-            }),
-          });
-          if (!response.ok) {
-            throw new Error(
-              `Advanced search API error: ${response.status} ${response.statusText}`
-            );
-          }
-          searchResult = await response.json();
-        } else {
-          searchResult = await searxngSearch(
-            filledQuery,
-            max_results,
-            effectiveSearchDepth === "advanced" ? "advanced" : "basic",
-            include_domains,
-            exclude_domains
-          );
-        }
+        searchResult = await searxngSearch(
+          filledQuery,
+          max_results,
+          effectiveSearchDepth === "advanced" ? "advanced" : "basic",
+          include_domains,
+          exclude_domains,
+        );
       } catch (error) {
         console.error("Search API error:", error);
         hasError = true;
@@ -90,12 +65,19 @@ export const searchTool = ({ uiStream, fullResponse }: ToolProps) =>
 
       if (hasError) {
         fullResponse = `An error occurred while searching for "${filledQuery}".`;
-        uiStream.update(null);
-        streamResults.done();
-        return searchResult;
+        streamingData.append({
+          type: "search-error",
+          content: filledQuery,
+        });
       }
+      streamingData.append({
+        type: "search-complete",
+        content: {
+          query: filledQuery,
+          resultCount: searchResult.number_of_results || 0,
+        },
+      });
 
-      streamResults.done(JSON.stringify(searchResult));
       return searchResult;
     },
   });
@@ -105,7 +87,7 @@ async function searxngSearch(
   maxResults: number = 10,
   searchDepth: string,
   includeDomains: string[] = [],
-  excludeDomains: string[] = []
+  excludeDomains: string[] = [],
 ): Promise<SearchResults> {
   const apiUrl = process.env.SEARXNG_API_URL;
   if (!apiUrl) {
@@ -129,12 +111,16 @@ async function searxngSearch(
       url.searchParams.append("safesearch", "1");
       url.searchParams.append("engines", "google,bing");
     }
-
     // Fetch results from SearXNG
+
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "X-Forwarded-For": "127.0.0.1",
+        "X-Real-IP": "127.0.0.1",
+        "User-Agent": "NextJS-Local-Dev/1.0",
+        Origin: "http://localhost:3000",
       },
     });
 
@@ -142,7 +128,7 @@ async function searxngSearch(
       const errorText = await response.text();
       console.error(`SearXNG API error (${response.status}):`, errorText);
       throw new Error(
-        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`
+        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`,
       );
     }
 
@@ -163,7 +149,7 @@ async function searxngSearch(
           title: result.title,
           url: result.url,
           content: result.content,
-        })
+        }),
       ),
       query: data.query,
       images: imageResults

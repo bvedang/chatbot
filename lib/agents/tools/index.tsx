@@ -1,20 +1,21 @@
 import { createStreamableUI } from "ai/rsc";
 import { retrieveTool } from "./retrieve";
 import { searchTool } from "./search";
+import { StreamData } from "ai";
 
 export interface ToolProps {
-  uiStream: ReturnType<typeof createStreamableUI>;
+  streamingData: StreamData;
   fullResponse: string;
 }
 
-export const getTools = ({ uiStream, fullResponse }: ToolProps) => {
+export const getTools = ({ streamingData, fullResponse }: ToolProps) => {
   const tools: any = {
     search: searchTool({
-      uiStream,
+      streamingData,
       fullResponse,
     }),
     retrieve: retrieveTool({
-      uiStream,
+      streamingData,
       fullResponse,
     }),
   };

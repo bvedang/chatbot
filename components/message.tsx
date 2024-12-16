@@ -21,6 +21,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { MessageEditor } from "./message-editor";
 import CalendarEvent, { CalendarEventSkeleton } from "./calendar-event";
 import CalendarEventsList from "./calendar-event-list";
+import Search from "@/components/search";
+import { BotMessage } from "@/components/bot-message";
+import { AnswerSection } from "@/components/answer-section";
+import { Section } from "@/components/section";
+import { DefaultSkeleton } from "@/components/default-skeleton";
+import { MemoizedReactMarkdown } from "@/components/ui/markdown";
 
 const PurePreviewMessage = ({
   chatId,
@@ -40,10 +46,10 @@ const PurePreviewMessage = ({
   vote: Vote | undefined;
   isLoading: boolean;
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[])
+    messages: Message[] | ((messages: Message[]) => Message[]),
   ) => void;
   reload: (
-    chatRequestOptions?: ChatRequestOptions
+    chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
 }) => {
@@ -62,7 +68,7 @@ const PurePreviewMessage = ({
           {
             "w-full": mode === "edit",
             "group-data-[role=user]/message:w-fit": mode !== "edit",
-          }
+          },
         )}
       >
         {message.role === "assistant" && (
@@ -134,6 +140,7 @@ const PurePreviewMessage = ({
 
                 if (state === "result") {
                   const { result } = toolInvocation;
+                  console.log(toolName);
 
                   return (
                     <div key={toolCallId}>
@@ -167,8 +174,12 @@ const PurePreviewMessage = ({
                         <CalendarEvent events={result} />
                       ) : toolName === "listCalendarEvents" ? (
                         <CalendarEventsList events={result.events} />
+                      ) : toolName === "search" || toolName === "retrieve" ? (
+                        <Search events={result} />
                       ) : (
-                        <pre>{JSON.stringify(result, null, 2)}</pre>
+                        <AnswerSection
+                          result={JSON.stringify(result, null, 2)}
+                        />
                       )}
                     </div>
                   );
@@ -211,7 +222,9 @@ const PurePreviewMessage = ({
                       <CalendarEventSkeleton />
                     ) : toolName === "listCalendarEvents" ? (
                       <CalendarEventSkeleton />
-                    ) : null}
+                    ) : (
+                      <DefaultSkeleton />
+                    )}
                   </div>
                 );
               })}
@@ -241,7 +254,7 @@ export const PreviewMessage = memo(
     if (prevProps.message.content && nextProps.message.content) return false;
     if (!equal(prevProps.vote, nextProps.vote)) return false;
     return true;
-  }
+  },
 );
 
 export const ThinkingMessage = () => {
@@ -259,7 +272,7 @@ export const ThinkingMessage = () => {
           "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
           {
             "group-data-[role=user]/message:bg-muted": true,
-          }
+          },
         )}
       >
         <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">

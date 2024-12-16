@@ -1,33 +1,20 @@
 "use client";
 
 import { Section } from "./section";
-import { StreamableValue, useStreamableValue } from "ai/rsc";
-import { BotMessage } from "./message";
-import { useEffect, useState } from "react";
+import { BotMessage } from "@/components/bot-message";
 import { DefaultSkeleton } from "./default-skeleton";
 
 export type AnswerSectionProps = {
-  result?: StreamableValue<string>;
+  result?: string;
   hasHeader?: boolean;
 };
 
-export function AnswerSection({
-  result,
-  hasHeader = true,
-}: AnswerSectionProps) {
-  const [data, error, pending] = useStreamableValue(result);
-  const [content, setContent] = useState<string>("");
-
-  useEffect(() => {
-    if (!data) return;
-    setContent(data);
-  }, [data]);
-
+export function AnswerSection({ result }: AnswerSectionProps) {
   return (
     <div>
-      {content.length > 0 ? (
-        <Section title={hasHeader ? "Answer" : undefined}>
-          <BotMessage content={content} />
+      {result ? (
+        <Section title="Answer">
+          <BotMessage content={result} />
         </Section>
       ) : (
         <DefaultSkeleton />

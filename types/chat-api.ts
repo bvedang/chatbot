@@ -111,7 +111,9 @@ export type AllowedTools =
   | "requestSuggestions"
   | "getWeather"
   | "createCalendarEvent"
-  | "listCalendarEvents";
+  | "listCalendarEvents"
+  | "search"
+  | "retrieve";
 
 // Message Types
 export interface ChatMessage {

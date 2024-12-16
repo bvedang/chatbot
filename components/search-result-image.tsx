@@ -2,6 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { PlusCircle } from "lucide-react";
 import { SearchResultImage } from "@/lib/types";
 
 interface SearchResultsImageSectionProps {
@@ -34,8 +34,8 @@ export const SearchResultsImageSection: React.FC<
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showAllImages, setShowAllImages] = useState(false);
 
-  // Update the current and count state when the carousel api is available
   useEffect(() => {
     if (!api) {
       return;
@@ -49,7 +49,6 @@ export const SearchResultsImageSection: React.FC<
     });
   }, [api]);
 
-  // Scroll to the selected index
   useEffect(() => {
     if (api) {
       api.scrollTo(selectedIndex, true);
@@ -60,8 +59,6 @@ export const SearchResultsImageSection: React.FC<
     return <div className="text-muted-foreground">No images found</div>;
   }
 
-  // If enabled the include_images_description is true, the images will be an array of { url: string, description: string }
-  // Otherwise, the images will be an array of strings
   let convertedImages: { url: string; description: string }[] = [];
   if (typeof images[0] === "string") {
     convertedImages = (images as string[]).map((image) => ({
@@ -72,9 +69,14 @@ export const SearchResultsImageSection: React.FC<
     convertedImages = images as { url: string; description: string }[];
   }
 
+  const displayedImages = showAllImages
+    ? convertedImages
+    : convertedImages.slice(0, 3);
+  const remainingCount = convertedImages.length - 3;
+
   return (
     <div className="flex flex-wrap gap-2">
-      {convertedImages.slice(0, 4).map((image, index) => (
+      {displayedImages.map((image, index) => (
         <Dialog key={index}>
           <DialogTrigger asChild>
             <div
@@ -82,26 +84,17 @@ export const SearchResultsImageSection: React.FC<
               onClick={() => setSelectedIndex(index)}
             >
               <Card className="flex-1 h-full">
-                <CardContent className="p-2 h-full w-full">
-                  {image ? (
-                    <img
-                      src={image.url}
-                      alt={`Image ${index + 1}`}
-                      className="h-full w-full object-cover"
-                      onError={(e) =>
-                        (e.currentTarget.src = "/images/placeholder-image.png")
-                      }
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-muted animate-pulse" />
-                  )}
+                <CardContent className="p-2 size-full">
+                  <img
+                    src={image.url}
+                    alt={`Image ${index + 1}`}
+                    className="size-full object-cover"
+                    onError={(e) =>
+                      (e.currentTarget.src = "/images/placeholder-image.png")
+                    }
+                  />
                 </CardContent>
               </Card>
-              {index === 3 && images.length > 4 && (
-                <div className="absolute inset-0 bg-black/30 rounded-md flex items-center justify-center text-white/80 text-sm">
-                  <PlusCircle size={24} />
-                </div>
-              )}
             </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-auto">
@@ -132,10 +125,10 @@ export const SearchResultsImageSection: React.FC<
                   ))}
                 </CarouselContent>
                 <div className="absolute inset-8 flex items-center justify-between p-4">
-                  <CarouselPrevious className="w-10 h-10 rounded-full shadow focus:outline-none">
+                  <CarouselPrevious className="size-10 rounded-full shadow focus:outline-none">
                     <span className="sr-only">Previous</span>
                   </CarouselPrevious>
-                  <CarouselNext className="w-10 h-10 rounded-full shadow focus:outline-none">
+                  <CarouselNext className="size-10 rounded-full shadow focus:outline-none">
                     <span className="sr-only">Next</span>
                   </CarouselNext>
                 </div>
@@ -147,6 +140,22 @@ export const SearchResultsImageSection: React.FC<
           </DialogContent>
         </Dialog>
       ))}
+
+      {!showAllImages && remainingCount > 0 && (
+        <div className="w-[calc(50%-0.5rem)] md:w-[calc(25%-0.5rem)] aspect-video cursor-pointer">
+          <Card className="flex-1 h-full">
+            <CardContent className="p-2 size-full flex items-center justify-center">
+              <Button
+                variant="link"
+                className="text-muted-foreground"
+                onClick={() => setShowAllImages(true)}
+              >
+                View {remainingCount} more
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
