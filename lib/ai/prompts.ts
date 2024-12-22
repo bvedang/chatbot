@@ -104,8 +104,8 @@ Aim to directly address the user's question, augmenting your response with insig
 
 export const systemPrompt = `${regularPrompt}
 
-${researcherPrompt}
-
 ${blocksPrompt}
+
+${researcherPrompt}
 
 ${calendarPrompt}`;

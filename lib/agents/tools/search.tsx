@@ -50,7 +50,7 @@ export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
           max_results,
           effectiveSearchDepth === "advanced" ? "advanced" : "basic",
           include_domains,
-          exclude_domains,
+          exclude_domains
         );
       } catch (error) {
         console.error("Search API error:", error);
@@ -87,7 +87,7 @@ async function searxngSearch(
   maxResults: number = 10,
   searchDepth: string,
   includeDomains: string[] = [],
-  excludeDomains: string[] = [],
+  excludeDomains: string[] = []
 ): Promise<SearchResults> {
   const apiUrl = process.env.SEARXNG_API_URL;
   if (!apiUrl) {
@@ -99,7 +99,7 @@ async function searxngSearch(
     const url = new URL(`${apiUrl}/search`);
     url.searchParams.append("q", query);
     url.searchParams.append("format", "json");
-    url.searchParams.append("categories", "general,images");
+    url.searchParams.append("categories", "general,images, map");
 
     // Apply search depth settings
     if (searchDepth === "advanced") {
@@ -128,7 +128,7 @@ async function searxngSearch(
       const errorText = await response.text();
       console.error(`SearXNG API error (${response.status}):`, errorText);
       throw new Error(
-        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`,
+        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`
       );
     }
 
@@ -149,7 +149,7 @@ async function searxngSearch(
           title: result.title,
           url: result.url,
           content: result.content,
-        }),
+        })
       ),
       query: data.query,
       images: imageResults

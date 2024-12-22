@@ -101,7 +101,7 @@ const allTools: AllowedTools[] = [
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI,
+  process.env.GOOGLE_REDIRECT_URI
 );
 
 const calendar = google.calendar({ version: "v3", auth: oauth2Client });
@@ -153,7 +153,6 @@ export async function POST(request: Request) {
     system: systemPrompt,
     messages: coreMessages,
     maxSteps: 5,
-    experimental_toolCallStreaming: true,
     experimental_activeTools: allTools,
     tools: {
       ...getTools({ streamingData, fullResponse: "" }),
@@ -165,7 +164,7 @@ export async function POST(request: Request) {
         }),
         execute: async ({ latitude, longitude }) => {
           const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
           );
           return await response.json();
         },
@@ -360,7 +359,7 @@ export async function POST(request: Request) {
             .string()
             .optional()
             .describe(
-              "End time in ISO format (defaults to start time + 1 hour)",
+              "End time in ISO format (defaults to start time + 1 hour)"
             ),
           attendees: z
             .array(z.string())
@@ -377,7 +376,7 @@ export async function POST(request: Request) {
             ])
             .default("single")
             .describe(
-              "Pattern for event creation: single event, work session with breaks (breaks should not overlap work sessions), meeting series, or split session",
+              "Pattern for event creation: single event, work session with breaks (breaks should not overlap work sessions), meeting series, or split session"
             ),
 
           // Work session specific parameters
@@ -385,7 +384,7 @@ export async function POST(request: Request) {
             .number()
             .optional()
             .describe(
-              "Total duration in hours (required for work-with-breaks and split-session patterns)",
+              "Total duration in hours (required for work-with-breaks and split-session patterns)"
             ),
           breakDuration: z
             .number()
@@ -397,7 +396,7 @@ export async function POST(request: Request) {
             .optional()
             .default(1.25)
             .describe(
-              "Duration of each work segment in hours (defaults to 75 minutes)",
+              "Duration of each work segment in hours (defaults to 75 minutes)"
             ),
         }),
 
@@ -462,7 +461,7 @@ export async function POST(request: Request) {
                   // Add work segment
                   const workDuration = Math.min(
                     workSegmentDuration,
-                    remainingDuration,
+                    remainingDuration
                   );
                   events.push({
                     summary,
@@ -470,14 +469,14 @@ export async function POST(request: Request) {
                     startDateTime: currentTime.toISOString(),
                     endDateTime: addHours(
                       currentTime.toISOString(),
-                      workDuration,
+                      workDuration
                     ),
                     attendees,
                   });
 
                   remainingDuration -= workDuration;
                   currentTime = new Date(
-                    addHours(currentTime.toISOString(), workDuration),
+                    addHours(currentTime.toISOString(), workDuration)
                   );
 
                   // Add break if there's more work to come
@@ -487,11 +486,11 @@ export async function POST(request: Request) {
                       startDateTime: currentTime.toISOString(),
                       endDateTime: addHours(
                         currentTime.toISOString(),
-                        breakDuration,
+                        breakDuration
                       ),
                     });
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), breakDuration),
+                      addHours(currentTime.toISOString(), breakDuration)
                     );
                   }
                 }
@@ -505,7 +504,7 @@ export async function POST(request: Request) {
                 }
 
                 const segmentCount = Math.ceil(
-                  totalDuration / workSegmentDuration,
+                  totalDuration / workSegmentDuration
                 );
 
                 for (let i = 0; i < segmentCount; i++) {
@@ -515,7 +514,7 @@ export async function POST(request: Request) {
                     startDateTime: currentTime.toISOString(),
                     endDateTime: addHours(
                       currentTime.toISOString(),
-                      workSegmentDuration,
+                      workSegmentDuration
                     ),
                     attendees,
                   });
@@ -523,18 +522,18 @@ export async function POST(request: Request) {
                   // Add break between segments if not the last segment
                   if (i < segmentCount - 1) {
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), workSegmentDuration),
+                      addHours(currentTime.toISOString(), workSegmentDuration)
                     );
                     events.push({
                       summary: "Break",
                       startDateTime: currentTime.toISOString(),
                       endDateTime: addHours(
                         currentTime.toISOString(),
-                        breakDuration,
+                        breakDuration
                       ),
                     });
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), breakDuration),
+                      addHours(currentTime.toISOString(), breakDuration)
                     );
                   }
                 }
@@ -717,13 +716,13 @@ export async function POST(request: Request) {
             allEvents.sort(
               (a: calendar_v3.Schema$Event, b: calendar_v3.Schema$Event) => {
                 const aStart = new Date(
-                  a.start?.dateTime || a.start?.date || 0,
+                  a.start?.dateTime || a.start?.date || 0
                 );
                 const bStart = new Date(
-                  b.start?.dateTime || b.start?.date || 0,
+                  b.start?.dateTime || b.start?.date || 0
                 );
                 return aStart.getTime() - bStart.getTime();
-              },
+              }
             );
 
             streamingData.append({
@@ -785,7 +784,7 @@ export async function POST(request: Request) {
                 content: message.content ?? {},
                 createdAt: new Date(),
               };
-            },
+            }
           ) as Message[],
         });
       } catch (error) {
