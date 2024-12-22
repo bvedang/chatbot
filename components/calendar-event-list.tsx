@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { MapPin, Pencil, Users, Video } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { MapPin, Pencil, Users, Video } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from './ui/button';
 
 interface ConferenceData {
   type?: string;
@@ -51,27 +51,27 @@ interface Props {
 export const EventDateTime: React.FC<{ dateTime: EventDateTime }> = ({
   dateTime,
 }) => {
-  const isSmallScreen = useMediaQuery("(max-width: 640px)");
-  const [formattedDate, setFormattedDate] = useState<string>("");
+  const isSmallScreen = useMediaQuery('(max-width: 640px)');
+  const [formattedDate, setFormattedDate] = useState<string>('');
 
   useEffect(() => {
     if (!dateTime.dateTime && !dateTime.date) {
-      setFormattedDate("No date specified");
+      setFormattedDate('No date specified');
       return;
     }
 
-    const date = new Date(dateTime.dateTime || dateTime.date || "");
+    const date = new Date(dateTime.dateTime || dateTime.date || '');
     const dateOptions: Intl.DateTimeFormatOptions = isSmallScreen
       ? {
-          dateStyle: "short",
-          timeStyle: dateTime.dateTime ? "short" : undefined,
+          dateStyle: 'short',
+          timeStyle: dateTime.dateTime ? 'short' : undefined,
         }
       : {
-          dateStyle: "medium",
-          timeStyle: dateTime.dateTime ? "short" : undefined,
+          dateStyle: 'medium',
+          timeStyle: dateTime.dateTime ? 'short' : undefined,
         };
 
-    setFormattedDate(date.toLocaleString("en-US", dateOptions));
+    setFormattedDate(date.toLocaleString('en-US', dateOptions));
   }, [isSmallScreen, dateTime]);
 
   return <span>{formattedDate}</span>;
@@ -91,7 +91,7 @@ export default function CalendarEventsList({ events }: Props) {
               {event.summary}
             </CardTitle>
             <div className="text-sm text-gray-500">
-              <EventDateTime dateTime={event.start} /> -{" "}
+              <EventDateTime dateTime={event.start} /> -{' '}
               <EventDateTime dateTime={event.end} />
             </div>
             {event.link && (
@@ -115,14 +115,14 @@ export default function CalendarEventsList({ events }: Props) {
             <div className="space-y-2">
               {event.location && (
                 <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="size-4" />
                   <span>{event.location}</span>
                 </div>
               )}
 
               {(event.conferenceData?.link || event.hangoutLink) && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Video className="h-4 w-4" />
+                  <Video className="size-4" />
                   <a
                     href={event.conferenceData?.link || event.hangoutLink}
                     target="_blank"
@@ -136,17 +136,17 @@ export default function CalendarEventsList({ events }: Props) {
 
               {event.attendees && event.attendees.length > 0 && (
                 <div className="flex items-start gap-2 text-sm">
-                  <Users className="h-4 w-4 mt-1" />
+                  <Users className="size-4 mt-1" />
                   <div className="flex flex-wrap gap-1">
                     {event.attendees.map((attendee, index) => (
                       <span
                         key={attendee.email}
                         className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 dark:text-gray-900"
                         title={`${attendee.email} (${
-                          attendee.responseStatus || "No response"
+                          attendee.responseStatus || 'No response'
                         })`}
                       >
-                        {attendee.displayName || attendee.email.split("@")[0]}
+                        {attendee.displayName || attendee.email.split('@')[0]}
                       </span>
                     ))}
                   </div>

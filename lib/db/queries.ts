@@ -1,6 +1,6 @@
-import { PrismaClient, Suggestion } from "@prisma/client";
-import type { Message } from "@prisma/client";
-import { ObjectId } from "mongodb";
+import { PrismaClient, Suggestion } from '@prisma/client';
+import type { Message } from '@prisma/client';
+import { ObjectId } from 'mongodb';
 
 const prisma = new PrismaClient();
 
@@ -22,7 +22,7 @@ export async function saveChat({
       },
     });
   } catch (error) {
-    console.error("Failed to save chat in database");
+    console.error('Failed to save chat in database');
     throw error;
   }
 }
@@ -39,7 +39,7 @@ export async function deleteChatById({ id }: { id: string }) {
       where: { id },
     });
   } catch (error) {
-    console.error("Failed to delete chat by id from database");
+    console.error('Failed to delete chat by id from database');
     throw error;
   }
 }
@@ -48,10 +48,10 @@ export async function getChatsByUserId({ id }: { id: string }) {
   try {
     return await prisma.chat.findMany({
       where: { userId: id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   } catch (error) {
-    console.error("Failed to get chats by user from database");
+    console.error('Failed to get chats by user from database');
     throw error;
   }
 }
@@ -62,7 +62,7 @@ export async function getChatById({ id }: { id: string }) {
       where: { id },
     });
   } catch (error) {
-    console.error("Failed to get chat by id from database");
+    console.error('Failed to get chat by id from database');
     throw error;
   }
 }
@@ -76,7 +76,7 @@ export async function saveMessages({ messages }: { messages: Array<Message> }) {
       })),
     });
   } catch (error) {
-    console.error("Failed to save messages in database");
+    console.error('Failed to save messages in database');
     throw error;
   }
 }
@@ -85,10 +85,10 @@ export async function getMessagesByChatId({ id }: { id: string }) {
   try {
     return await prisma.message.findMany({
       where: { chatId: id },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
     });
   } catch (error) {
-    console.error("Failed to get messages by chat id from database");
+    console.error('Failed to get messages by chat id from database');
     throw error;
   }
 }
@@ -100,7 +100,7 @@ export async function voteMessage({
 }: {
   chatId: string;
   messageId: string;
-  type: "up" | "down";
+  type: 'up' | 'down';
 }) {
   try {
     return await prisma.vote.upsert({
@@ -111,17 +111,17 @@ export async function voteMessage({
         },
       },
       update: {
-        isUpvoted: type === "up",
+        isUpvoted: type === 'up',
       },
       create: {
         id: new ObjectId().toString(),
         chatId,
         messageId,
-        isUpvoted: type === "up",
+        isUpvoted: type === 'up',
       },
     });
   } catch (error) {
-    console.error("Failed to vote message in database");
+    console.error('Failed to vote message in database');
     throw error;
   }
 }
@@ -132,7 +132,7 @@ export async function getVotesByChatId({ id }: { id: string }) {
       where: { chatId: id },
     });
   } catch (error) {
-    console.error("Failed to get votes by chat id from database");
+    console.error('Failed to get votes by chat id from database');
     throw error;
   }
 }
@@ -143,7 +143,7 @@ export async function getMessageById({ id }: { id: string }) {
       where: { id },
     });
   } catch (error) {
-    console.error("Failed to get message by id from database");
+    console.error('Failed to get message by id from database');
     throw error;
   }
 }
@@ -163,7 +163,7 @@ export async function deleteMessagesByChatIdAfterTimestamp({
     });
   } catch (error) {
     console.error(
-      "Failed to delete messages by chat id after timestamp from database"
+      'Failed to delete messages by chat id after timestamp from database',
     );
     throw error;
   }
@@ -174,7 +174,7 @@ export async function updateChatVisiblityById({
   visibility,
 }: {
   chatId: string;
-  visibility: "private" | "public";
+  visibility: 'private' | 'public';
 }) {
   try {
     return await prisma.chat.update({
@@ -182,7 +182,7 @@ export async function updateChatVisiblityById({
       data: { visibility },
     });
   } catch (error) {
-    console.error("Failed to update chat visibility in database");
+    console.error('Failed to update chat visibility in database');
     throw error;
   }
 }
@@ -197,6 +197,6 @@ export async function saveSuggestions({
       data: suggestions,
     });
   } catch (error) {
-    console.error("Failed to save suggestions in database");
+    console.error('Failed to save suggestions in database');
   }
 }

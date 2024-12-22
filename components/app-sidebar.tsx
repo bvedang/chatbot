@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
-import { PlusIcon } from "@/components/icons";
-import { SidebarHistory } from "@/components/sidebar-history";
-import { SidebarUserNav } from "@/components/sidebar-user-nav";
-import { Button } from "@/components/ui/button";
+import { PlusIcon } from '@/components/icons';
+import { SidebarHistory } from '@/components/sidebar-history';
+import { SidebarUserNav } from '@/components/sidebar-user-nav';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +14,10 @@ import {
   SidebarHeader,
   SidebarMenu,
   useSidebar,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { UserResource } from "@clerk/types";
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { UserResource } from '@clerk/types';
 
 export function AppSidebar() {
   const { user } = useUser();
@@ -48,7 +48,7 @@ export function AppSidebar() {
                   className="p-2 h-fit"
                   onClick={() => {
                     setOpenMobile(false);
-                    router.push("/");
+                    router.push('/');
                     router.refresh();
                   }}
                 >

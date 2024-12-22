@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider } from '@clerk/clerk-react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Calendar, CheckCircle, Loader2 } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
+} from '@/components/ui/tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 const GoogleCalendarAuth = () => {
   const [connectionStatus, setConnectionStatus] = useState<{
@@ -23,7 +23,7 @@ const GoogleCalendarAuth = () => {
 
   const verifyConnection = async () => {
     try {
-      const response = await fetch("/api/auth/calendar/check");
+      const response = await fetch('/api/auth/calendar/check');
       const data = await response.json();
 
       setConnectionStatus({
@@ -35,7 +35,7 @@ const GoogleCalendarAuth = () => {
       setConnectionStatus({
         isConnected: false,
         isLoading: false,
-        error: "Unable to verify calendar connection status",
+        error: 'Unable to verify calendar connection status',
       });
     }
   };
@@ -51,7 +51,7 @@ const GoogleCalendarAuth = () => {
         isLoading: true,
         error: null,
       }));
-      const response = await fetch("/api/auth/calendar/google");
+      const response = await fetch('/api/auth/calendar/google');
       const data = await response.json();
 
       if (data.url) {
@@ -61,10 +61,10 @@ const GoogleCalendarAuth = () => {
       setConnectionStatus((prev) => ({
         ...prev,
         isLoading: false,
-        error: "Failed to connect to Google Calendar",
+        error: 'Failed to connect to Google Calendar',
       }));
-      toast("Auth Failed", {
-        description: "Failed to connect to Google Calendar",
+      toast('Auth Failed', {
+        description: 'Failed to connect to Google Calendar',
       });
     }
   };
@@ -79,7 +79,7 @@ const GoogleCalendarAuth = () => {
                 variant="outline"
                 className="flex items-center gap-2 bg-background hover:bg-secondary/80 cursor-default border-border"
               >
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="size-4 text-green-500" />
                 <span className="hidden sm:inline text-secondary-foreground">
                   Connected to Google Calendar
                 </span>
@@ -97,14 +97,14 @@ const GoogleCalendarAuth = () => {
           disabled={connectionStatus.isLoading}
         >
           {connectionStatus.isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Calendar className="w-4 h-4" />
+            <Calendar className="size-4" />
           )}
           <span className="hidden sm:inline">
             {connectionStatus.isLoading
-              ? "Connecting..."
-              : "Connect Google Calendar"}
+              ? 'Connecting...'
+              : 'Connect Google Calendar'}
           </span>
         </Button>
       )}

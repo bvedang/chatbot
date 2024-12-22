@@ -1,25 +1,25 @@
 function getCurrentDateTime() {
   const now = new Date();
   const offset = -now.getTimezoneOffset();
-  const sign = offset >= 0 ? "+" : "-";
+  const sign = offset >= 0 ? '+' : '-';
   const pad = (num: number) =>
-    String(Math.floor(Math.abs(num))).padStart(2, "0");
+    String(Math.floor(Math.abs(num))).padStart(2, '0');
 
   return (
     now.getFullYear() +
-    "-" +
+    '-' +
     pad(now.getMonth() + 1) +
-    "-" +
+    '-' +
     pad(now.getDate()) +
-    "T" +
+    'T' +
     pad(now.getHours()) +
-    ":" +
+    ':' +
     pad(now.getMinutes()) +
-    ":" +
+    ':' +
     pad(now.getSeconds()) +
     sign +
     pad(offset / 60) +
-    ":" +
+    ':' +
     pad(offset % 60)
   );
 }
@@ -50,7 +50,7 @@ export const blocksPrompt = `
   `;
 
 export const regularPrompt =
-  "You are a friendly assistant! Keep your responses concise and helpful.";
+  'You are a friendly assistant! Keep your responses concise and helpful.';
 
 export const calendarPrompt = `
   Calendar Tools Guide:
@@ -97,4 +97,15 @@ export const calendarPrompt = `
   - Total scheduled time (work + breaks) should not exceed user-specified total duration
 `;
 
-export const systemPrompt = `${regularPrompt}\n\n${blocksPrompt}\n\n${calendarPrompt}`;
+export const researcherPrompt = `As a professional search expert, you possess the ability to search for any information on the web.
+For each user query, utilize the search results to their fullest potential to provide additional information and assistance in your response.
+If there are any images relevant to your answer, be sure to include them as well.
+Aim to directly address the user's question, augmenting your response with insights gleaned from the search results.`;
+
+export const systemPrompt = `${regularPrompt}
+
+${blocksPrompt}
+
+${researcherPrompt}
+
+${calendarPrompt}`;

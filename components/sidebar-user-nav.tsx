@@ -1,7 +1,7 @@
-"use client";
-import { ChevronUp, Moon, Sun, LogOut } from "lucide-react";
-import { UserButton, useClerk } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
+'use client';
+import { ChevronUp, Moon, Sun, LogOut } from 'lucide-react';
+import { UserButton, useClerk } from '@clerk/nextjs';
+import { useTheme } from 'next-themes';
 
 import {
   DropdownMenu,
@@ -9,12 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 export function SidebarUserNav({ user }: { user: any }) {
   const { setTheme, theme } = useTheme();
@@ -22,10 +22,10 @@ export function SidebarUserNav({ user }: { user: any }) {
   const handleSignOut = () => {
     signOut()
       .then(() => {
-        window.location.href = "/sign-in";
+        window.location.href = '/sign-in';
       })
       .catch((error) => {
-        console.error("Error signing out:", error);
+        console.error('Error signing out:', error);
       });
   };
 
@@ -39,7 +39,7 @@ export function SidebarUserNav({ user }: { user: any }) {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "rounded-full w-6 h-6",
+                    avatarBox: 'rounded-full w-6 h-6',
                   },
                 }}
               />
@@ -55,21 +55,21 @@ export function SidebarUserNav({ user }: { user: any }) {
           >
             <DropdownMenuItem
               className="cursor-pointer flex items-center gap-2"
-              onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onSelect={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
-              {theme === "light" ? (
-                <Moon className="h-4 w-4" />
+              {theme === 'light' ? (
+                <Moon className="size-4" />
               ) : (
-                <Sun className="h-4 w-4" />
+                <Sun className="size-4" />
               )}
-              {`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+              {`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             </DropdownMenuItem>
 
             <DropdownMenuItem
               className="cursor-pointer flex items-center gap-2"
               onSelect={handleSignOut}
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="size-4" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

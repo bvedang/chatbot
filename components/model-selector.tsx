@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { startTransition, useMemo, useState } from "react";
+import { startTransition, useMemo, useState } from 'react';
 
-import { saveModelId } from "@/app/(chat)/actions";
-import { Button } from "@/components/ui/button";
+import { saveModelId } from '@/app/(chat)/actions';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { models } from "@/lib/ai/models";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dropdown-menu';
+import { models } from '@/lib/ai/models';
+import { cn } from '@/lib/utils';
 
-import { CheckCircleFillIcon, ChevronDownIcon } from "./icons";
+import { CheckCircleFillIcon, ChevronDownIcon } from './icons';
 
 export function ModelSelector({
   selectedModelId,
@@ -26,7 +26,7 @@ export function ModelSelector({
 
   const selectedModel = useMemo(
     () => models.find((model) => model.id === currentModelId),
-    [currentModelId]
+    [currentModelId],
   );
 
   return (
@@ -34,8 +34,8 @@ export function ModelSelector({
       <DropdownMenuTrigger
         asChild
         className={cn(
-          "w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
-          className
+          'w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
+          className,
         )}
       >
         <Button variant="outline" className="md:px-2 md:h-[34px]">

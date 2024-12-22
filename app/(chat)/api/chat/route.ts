@@ -33,6 +33,8 @@ import {
   ListCalendarEventsParams,
   AllowedTools,
 } from "../../../../types/chat-api";
+import { getTools } from "@/lib/agents/tools";
+import { AnswerSection } from "@/components/answer-section";
 
 const prisma = new PrismaClient();
 export const maxDuration = 60;
@@ -92,6 +94,8 @@ const allTools: AllowedTools[] = [
   ...blocksTools,
   ...weatherTools,
   ...calendarTools,
+  "search",
+  "retrieve",
 ];
 
 const oauth2Client = new google.auth.OAuth2(
@@ -151,13 +155,14 @@ export async function POST(request: Request) {
     maxSteps: 5,
     experimental_activeTools: allTools,
     tools: {
+      ...getTools({ streamingData, fullResponse: "" }),
       getWeather: {
         description: "Get the current weather at a location",
         parameters: z.object({
           latitude: z.number(),
           longitude: z.number(),
         }),
-        execute: async ({ latitude, longitude }) => {
+        execute: async ({ latitude, longitude }: any) => {
           const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
           );
@@ -169,7 +174,7 @@ export async function POST(request: Request) {
         parameters: z.object({
           title: z.string(),
         }),
-        execute: async ({ title }) => {
+        execute: async ({ title }: any) => {
           const id = generateUUID();
           let draftText = "";
 
@@ -221,7 +226,7 @@ export async function POST(request: Request) {
             .string()
             .describe("The description of changes that need to be made"),
         }),
-        execute: async ({ id, description }) => {
+        execute: async ({ id, description }: any) => {
           const document = await prisma.document.findUnique({ where: { id } });
           if (!document) {
             return { error: "Document not found" };
@@ -278,7 +283,7 @@ export async function POST(request: Request) {
             .string()
             .describe("The ID of the document to request edits"),
         }),
-        execute: async ({ documentId }) => {
+        execute: async ({ documentId }: any) => {
           const document = await prisma.document.findUnique({
             where: { id: documentId },
           });
@@ -405,7 +410,7 @@ export async function POST(request: Request) {
           totalDuration,
           breakDuration,
           workSegmentDuration,
-        }) => {
+        }: any) => {
           try {
             const userCalendarCreds =
               await prisma.userGoogleCalendar.findUnique({
@@ -633,7 +638,7 @@ export async function POST(request: Request) {
           showDeleted = false,
           orderBy = "startTime",
           q,
-        }) => {
+        }: any) => {
           try {
             // Retrieve user creds
             const userCalendarCreds =
@@ -737,6 +742,24 @@ export async function POST(request: Request) {
           }
         },
       },
+    },
+    onStepFinish: async (event) => {
+      if (event.stepType === "initial") {
+        if (event.toolCalls && event.toolCalls.length > 0) {
+          // Handle tool results
+          event.toolResults.forEach((result) => {
+            if (
+              result.type === "tool-result" ||
+              result.type === "retrieval-result"
+            ) {
+              streamingData.append({
+                type: result.type,
+                content: result.result,
+              });
+            }
+          });
+        }
+      }
     },
 
     onFinish: async ({ response }) => {

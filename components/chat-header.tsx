@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useWindowSize } from "usehooks-ts";
-import { memo } from "react";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useWindowSize } from 'usehooks-ts';
+import { memo } from 'react';
 
-import { ModelSelector } from "@/components/model-selector";
-import { SidebarToggle } from "@/components/sidebar-toggle";
-import { Button } from "@/components/ui/button";
-import { PlusIcon, VercelIcon } from "./icons";
-import { useSidebar } from "./ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { type VisibilityType, VisibilitySelector } from "./visibility-selector";
-import GoogleCalendarAuth from "./google-calendar";
-import { Plus, PlusSquareIcon } from "lucide-react";
+import { ModelSelector } from '@/components/model-selector';
+import { SidebarToggle } from '@/components/sidebar-toggle';
+import { Button } from '@/components/ui/button';
+import { PlusIcon, VercelIcon } from './icons';
+import { useSidebar } from './ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { type VisibilityType, VisibilitySelector } from './visibility-selector';
+import GoogleCalendarAuth from './google-calendar';
+import { Plus, PlusSquareIcon } from 'lucide-react';
 
 function PureChatHeader({
   chatId,
@@ -41,11 +41,11 @@ function PureChatHeader({
               variant="outline"
               className="flex items-center gap-2 order-2 md:order-1 md:px-2 px-2 md:h-fit ml-auto md:ml-0"
               onClick={() => {
-                router.push("/");
+                router.push('/');
                 router.refresh();
               }}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="size-4" />
               <span className="hidden sm:inline">New Chat</span>
             </Button>
           </TooltipTrigger>
