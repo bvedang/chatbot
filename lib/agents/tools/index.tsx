@@ -1,7 +1,7 @@
-import { createStreamableUI } from "ai/rsc";
-import { retrieveTool } from "./retrieve";
-import { searchTool } from "./search";
-import { StreamData } from "ai";
+import { createStreamableUI } from 'ai/rsc';
+import { retrieveTool } from './retrieve';
+import { searchTool } from './search';
+import { StreamData } from 'ai';
 
 export interface ToolProps {
   streamingData: StreamData;

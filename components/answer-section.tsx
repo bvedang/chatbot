@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Section } from "./section";
-import { BotMessage } from "@/components/bot-message";
-import { DefaultSkeleton } from "./default-skeleton";
+import { Section } from './section';
+import { BotMessage } from '@/components/bot-message';
+import { DefaultSkeleton } from './default-skeleton';
 
 export type AnswerSectionProps = {
   result?: string;

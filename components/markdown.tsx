@@ -1,13 +1,13 @@
-import Link from "next/link";
-import React, { memo } from "react";
-import ReactMarkdown, { type Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
+import Link from 'next/link';
+import React, { memo } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   const components: Partial<Components> = {
     // @ts-expect-error
     code: ({ node, inline, className, children, ...props }) => {
-      const match = /language-(\w+)/.exec(className || "");
+      const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
         // @ts-expect-error
         <pre

@@ -1,5 +1,5 @@
-import React from "react";
-import { ChatShare } from "./chat-share";
+import React from 'react';
+import { ChatShare } from './chat-share';
 
 type UserMessageProps = {
   message: string;
@@ -12,7 +12,7 @@ export const UserMessage: React.FC<UserMessageProps> = ({
   chatId,
   showShare = false,
 }) => {
-  const enableShare = process.env.ENABLE_SHARE === "true";
+  const enableShare = process.env.ENABLE_SHARE === 'true';
   return (
     <div className="flex items-center w-full space-x-1 mt-2 min-h-10">
       <div className="text-xl flex-1 break-words w-full">{message}</div>

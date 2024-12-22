@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   AlertCircle,
   Check,
@@ -11,14 +11,14 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Button } from "./ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { Skeleton } from "./ui/skeleton";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { EventDateTime } from "./calendar-event-list";
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Button } from './ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Skeleton } from './ui/skeleton';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { EventDateTime } from './calendar-event-list';
 
 interface EventProps {
   eventId: string;
@@ -48,10 +48,10 @@ interface Props {
 const CalendarEvent = ({ events }: Props) => {
   const [expandedEvents, setExpandedEvents] = useState<string[]>([]);
 
-  if ("error" in events) {
+  if ('error' in events) {
     return (
       <Alert variant="destructive" className="mx-auto max-w-3xl">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>{events.error}</AlertDescription>
       </Alert>
@@ -61,7 +61,7 @@ const CalendarEvent = ({ events }: Props) => {
   if (!events || events.length === 0) {
     return (
       <Alert className="mx-auto max-w-3xl">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertTitle>No Events</AlertTitle>
         <AlertDescription>No calendar events found</AlertDescription>
       </Alert>
@@ -72,7 +72,7 @@ const CalendarEvent = ({ events }: Props) => {
     setExpandedEvents((prev) =>
       prev.includes(eventId)
         ? prev.filter((id) => id !== eventId)
-        : [...prev, eventId]
+        : [...prev, eventId],
     );
   };
 
@@ -96,14 +96,14 @@ const CalendarEvent = ({ events }: Props) => {
                 {event.summary}
               </CardTitle>
               <div className="flex items-center space-x-2 shrink-0">
-                {event.status === "Event created successfully" ? (
+                {event.status === 'Event created successfully' ? (
                   <motion.div
                     className="flex items-center text-green-600"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                   >
-                    <Check className="h-4 sm:h-5 w-4 sm:w-5 mr-1" />
+                    <Check className="size-4 sm:size-5 mr-1" />
                     <span className="text-xs sm:text-sm">Created</span>
                   </motion.div>
                 ) : (
@@ -111,9 +111,9 @@ const CalendarEvent = ({ events }: Props) => {
                     className="flex items-center text-red-600"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                   >
-                    <X className="h-4 sm:h-5 w-4 sm:w-5 mr-1" />
+                    <X className="size-4 sm:size-5 mr-1" />
                     <span className="text-xs sm:text-sm">Failed</span>
                   </motion.div>
                 )}
@@ -123,14 +123,14 @@ const CalendarEvent = ({ events }: Props) => {
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
                   <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 shrink-0" />
+                    <Calendar className="size-4 mr-2 shrink-0" />
                     <span className="break-words">
                       Start:
                       <EventDateTime dateTime={event.start} />
                     </span>
                   </div>
                   <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                    <Clock className="h-4 w-4 mr-2 shrink-0" />
+                    <Clock className="size-4 mr-2 shrink-0" />
                     <span className="break-words">
                       End: <EventDateTime dateTime={event.end} />
                     </span>
@@ -138,9 +138,9 @@ const CalendarEvent = ({ events }: Props) => {
                 </div>
                 {event.recurrence && event.recurrence.length > 0 && (
                   <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                    <Repeat className="h-4 w-4 mr-2 shrink-0" />
+                    <Repeat className="size-4 mr-2 shrink-0" />
                     <span className="break-words">
-                      Recurring: {event.recurrence.join(", ")}
+                      Recurring: {event.recurrence.join(', ')}
                     </span>
                   </div>
                 )}
@@ -150,7 +150,7 @@ const CalendarEvent = ({ events }: Props) => {
                 {expandedEvents.includes(event.eventId) && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
+                    animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
@@ -177,7 +177,7 @@ const CalendarEvent = ({ events }: Props) => {
                     {event.attendees && event.attendees.length > 0 && (
                       <div className="border-t mt-4 pt-4">
                         <div className="flex items-center mb-2">
-                          <Users className="h-4 w-4 mr-2" />
+                          <Users className="size-4 mr-2" />
                           <span className="text-xs sm:text-sm font-medium">
                             Attendees
                           </span>
@@ -194,11 +194,11 @@ const CalendarEvent = ({ events }: Props) => {
                               {attendee.responseStatus && (
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${
-                                    attendee.responseStatus === "accepted"
-                                      ? "bg-green-100 text-green-800"
-                                      : attendee.responseStatus === "declined"
-                                      ? "bg-red-100 text-red-800"
-                                      : "bg-yellow-100 text-yellow-800"
+                                    attendee.responseStatus === 'accepted'
+                                      ? 'bg-green-100 text-green-800'
+                                      : attendee.responseStatus === 'declined'
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-yellow-100 text-yellow-800'
                                   }`}
                                 >
                                   {attendee.responseStatus
@@ -223,13 +223,13 @@ const CalendarEvent = ({ events }: Props) => {
                 onClick={() => toggleEventExpansion(event.eventId)}
               >
                 {expandedEvents.includes(event.eventId) ? (
-                  <ChevronUp className="h-4 w-4 mr-2" />
+                  <ChevronUp className="size-4 mr-2" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 mr-2" />
+                  <ChevronDown className="size-4 mr-2" />
                 )}
                 {expandedEvents.includes(event.eventId)
-                  ? "Show Less"
-                  : "Show More"}
+                  ? 'Show Less'
+                  : 'Show More'}
               </Button>
             </CardContent>
           </Card>

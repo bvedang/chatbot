@@ -1,9 +1,9 @@
-import { createStreamableUI, createStreamableValue } from "ai/rsc";
-import { CoreMessage, streamObject } from "ai";
-import { PartialRelated, relatedSchema } from "@/lib/schema/related";
+import { createStreamableUI, createStreamableValue } from 'ai/rsc';
+import { CoreMessage, streamObject } from 'ai';
+import { PartialRelated, relatedSchema } from '@/lib/schema/related';
 
-import SearchRelated from "@/components/search-related";
-import { getModel } from "../helper/registry";
+import SearchRelated from '@/components/search-related';
+import { getModel } from '../helper/registry';
 
 export async function querySuggestor(
   uiStream: ReturnType<typeof createStreamableUI>,
@@ -16,7 +16,7 @@ export async function querySuggestor(
   const lastMessages = messages.slice(-1).map((message) => {
     return {
       ...message,
-      role: "user",
+      role: 'user',
     };
   }) as CoreMessage[];
 

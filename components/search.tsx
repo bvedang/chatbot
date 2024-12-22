@@ -1,6 +1,6 @@
-import { Section } from "@/components/section";
-import { SearchSection } from "@/components/search-section";
-import { AnswerSection } from "@/components/answer-section";
+import { Section } from '@/components/section';
+import { SearchSection } from '@/components/search-section';
+import { AnswerSection } from '@/components/answer-section';
 
 const Search = ({ events }: any) => {
   const { query, images, results } = events;

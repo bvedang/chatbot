@@ -1,6 +1,6 @@
-import React from "react";
-import { Search } from "lucide-react";
-import { Badge } from "./ui/badge";
+import React from 'react';
+import { Search } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 type ToolBadgeProps = {
   tool: string;
@@ -18,7 +18,7 @@ export const ToolBadge: React.FC<ToolBadgeProps> = ({
   };
 
   return (
-    <Badge className={className} variant={"secondary"}>
+    <Badge className={className} variant={'secondary'}>
       {icon[tool]}
       <span className="ml-1">{children}</span>
     </Badge>

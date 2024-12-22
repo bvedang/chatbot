@@ -1,11 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
-import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
+import { auth } from '@clerk/nextjs/server';
+import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 
-import { Chat } from "@/components/chat";
-import { DEFAULT_MODEL_NAME, models } from "@/lib/ai/models";
-import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
-import { convertToUIMessages } from "@/lib/utils";
+import { Chat } from '@/components/chat';
+import { DEFAULT_MODEL_NAME, models } from '@/lib/ai/models';
+import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
+import { convertToUIMessages } from '@/lib/utils';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -18,7 +18,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const { userId } = await auth();
 
-  if (chat.visibility === "private") {
+  if (chat.visibility === 'private') {
     if (!userId) {
       notFound();
     }
@@ -33,7 +33,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   });
 
   const cookieStore = cookies();
-  const modelIdFromCookie = cookieStore.get("model-id")?.value;
+  const modelIdFromCookie = cookieStore.get('model-id')?.value;
   const selectedModelId =
     models.find((model) => model.id === modelIdFromCookie)?.id ||
     DEFAULT_MODEL_NAME;

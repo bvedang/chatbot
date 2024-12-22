@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { SearchResults } from "./search-result";
-import { DefaultSkeleton } from "./default-skeleton";
-import { SearchResultsImageSection } from "./search-result-image";
-import { Section } from "./section";
-import { ToolBadge } from "./tool-badge";
+import { SearchResults } from './search-result';
+import { DefaultSkeleton } from './default-skeleton';
+import { SearchResultsImageSection } from './search-result-image';
+import { Section } from './section';
+import { ToolBadge } from './tool-badge';
 import type {
   SearchResults as TypeSearchResults,
   SearXNGSearchResults,
-} from "@/lib/types";
-import { StreamableValue, useStreamableValue } from "ai/rsc";
-import { AnswerSection } from "@/components/answer-section";
+} from '@/lib/types';
+import { StreamableValue, useStreamableValue } from 'ai/rsc';
+import { AnswerSection } from '@/components/answer-section';
 
 export type SearchSectionProps = {
   result?: SearXNGSearchResults;
@@ -19,8 +19,8 @@ export type SearchSectionProps = {
 
 export function SearchSection({ result, includeDomains }: SearchSectionProps) {
   const includeDomainsString = includeDomains
-    ? ` [${includeDomains.join(", ")}]`
-    : "";
+    ? ` [${includeDomains.join(', ')}]`
+    : '';
 
   return (
     <div>

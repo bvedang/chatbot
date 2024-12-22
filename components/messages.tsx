@@ -1,12 +1,12 @@
-"use client";
-import type { ChatRequestOptions, Message } from "ai";
-import { PreviewMessage, ThinkingMessage } from "./message";
-import { useScrollToBottom } from "./use-scroll-to-bottom";
-import { Overview } from "./overview";
-import type { UIBlock } from "./block";
-import { type Dispatch, memo, type SetStateAction } from "react";
-import type { Vote } from "@prisma/client";
-import { useEffect, useRef } from "react";
+'use client';
+import type { ChatRequestOptions, Message } from 'ai';
+import { PreviewMessage, ThinkingMessage } from './message';
+import { useScrollToBottom } from './use-scroll-to-bottom';
+import { Overview } from './overview';
+import type { UIBlock } from './block';
+import { type Dispatch, memo, type SetStateAction } from 'react';
+import type { Vote } from '@prisma/client';
+import { useEffect, useRef } from 'react';
 
 interface MessagesProps {
   chatId: string;
@@ -16,10 +16,10 @@ interface MessagesProps {
   votes: Array<Vote> | undefined;
   messages: Array<Message>;
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[])
+    messages: Message[] | ((messages: Message[]) => Message[]),
   ) => void;
   reload: (
-    chatRequestOptions?: ChatRequestOptions
+    chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
 }
@@ -37,14 +37,14 @@ function PureMessages({
 }: MessagesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const lastMessageRef = useRef<string>("");
+  const lastMessageRef = useRef<string>('');
 
   useEffect(() => {
     // Only scroll to bottom for new messages, not for UI updates
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.id !== lastMessageRef.current) {
       lastMessageRef.current = lastMessage.id;
-      endRef.current?.scrollIntoView({ behavior: "smooth" });
+      endRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
@@ -76,7 +76,7 @@ function PureMessages({
 
       {isLoading &&
         messages.length > 0 &&
-        messages[messages.length - 1].role === "user" && <ThinkingMessage />}
+        messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
 
       <div ref={endRef} className="shrink-0 min-w-[24px] min-h-[24px]" />
     </div>
@@ -85,8 +85,8 @@ function PureMessages({
 
 function areEqual(prevProps: MessagesProps, nextProps: MessagesProps) {
   if (
-    prevProps.block.status === "streaming" &&
-    nextProps.block.status === "streaming"
+    prevProps.block.status === 'streaming' &&
+    nextProps.block.status === 'streaming'
   ) {
     return true;
   }

@@ -41,11 +41,11 @@ export interface CalendarEvent {
 
 // Tool Parameter Types
 export type EventPattern =
-  | "single"
-  | "work-with-breaks"
-  | "meeting-series"
-  | "split-session";
-export type CalendarOrderBy = "startTime" | "updated";
+  | 'single'
+  | 'work-with-breaks'
+  | 'meeting-series'
+  | 'split-session';
+export type CalendarOrderBy = 'startTime' | 'updated';
 
 export interface CreateCalendarEventParams {
   summary: string;
@@ -92,34 +92,34 @@ export interface ListCalendarEventsResponse {
 // Stream Data Types
 export interface StreamDataContent {
   type:
-    | "calendar-event"
-    | "calendar-events-list"
-    | "user-message-id"
-    | "id"
-    | "title"
-    | "clear"
-    | "text-delta"
-    | "finish"
-    | "suggestion";
+    | 'calendar-event'
+    | 'calendar-events-list'
+    | 'user-message-id'
+    | 'id'
+    | 'title'
+    | 'clear'
+    | 'text-delta'
+    | 'finish'
+    | 'suggestion';
   content: any;
 }
 
 // Tool Types
 export type AllowedTools =
-  | "createDocument"
-  | "updateDocument"
-  | "requestSuggestions"
-  | "getWeather"
-  | "createCalendarEvent"
-  | "listCalendarEvents"
-  | "search"
-  | "retrieve";
+  | 'createDocument'
+  | 'updateDocument'
+  | 'requestSuggestions'
+  | 'getWeather'
+  | 'createCalendarEvent'
+  | 'listCalendarEvents'
+  | 'search'
+  | 'retrieve';
 
 // Message Types
 export interface ChatMessage {
   id: string;
   chatId: string;
-  role: "user" | "assistant" | "system";
+  role: 'user' | 'assistant' | 'system';
   content: string;
   createdAt: Date;
 }

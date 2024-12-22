@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { ArrowRight } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import { ArrowRight } from 'lucide-react';
 import {
   StreamableValue,
   useActions,
   useStreamableValue,
   useUIState,
-} from "ai/rsc";
-import { AI } from "@/app/actions";
-import { UserMessage } from "./user-message";
-import { PartialRelated } from "@/lib/schema/related";
-import { Section } from "./section";
-import { Skeleton } from "./ui/skeleton";
-import { useLocalStorage } from "@/lib/hooks/use-local-storage";
-import { models } from "@/lib/ai/models";
-import { getDefaultModelId } from "@/lib/utils";
+} from 'ai/rsc';
+import { AI } from '@/app/actions';
+import { UserMessage } from './user-message';
+import { PartialRelated } from '@/lib/schema/related';
+import { Section } from './section';
+import { Skeleton } from './ui/skeleton';
+import { useLocalStorage } from '@/lib/hooks/use-local-storage';
+import { models } from '@/lib/ai/models';
+import { getDefaultModelId } from '@/lib/utils';
 
 export interface SearchRelatedProps {
   relatedQueries: StreamableValue<PartialRelated>;
@@ -31,7 +31,7 @@ export const SearchRelated: React.FC<SearchRelatedProps> = ({
   const [related, setRelated] = useState<PartialRelated>();
 
   const [selectedModelId] = useLocalStorage<string>(
-    "selectedModel",
+    'selectedModel',
     getDefaultModelId(models),
   );
 
@@ -47,14 +47,14 @@ export const SearchRelated: React.FC<SearchRelatedProps> = ({
     // Get the submitter of the form
     const submitter = (event.nativeEvent as SubmitEvent)
       .submitter as HTMLInputElement;
-    let query = "";
+    let query = '';
     if (submitter) {
       formData.append(submitter.name, submitter.value);
       query = submitter.value;
     }
 
     // Add model information to formData
-    formData.set("model", selectedModelId);
+    formData.set('model', selectedModelId);
 
     const userMessage = {
       id: Date.now(),
@@ -74,7 +74,7 @@ export const SearchRelated: React.FC<SearchRelatedProps> = ({
       <form onSubmit={handleSubmit} className="flex flex-wrap">
         {Array.isArray(related.items) ? (
           related.items
-            ?.filter((item) => item?.query !== "")
+            ?.filter((item) => item?.query !== '')
             .map((item, index) => (
               <div className="flex items-start w-full" key={index}>
                 <ArrowRight className="size-4 mr-2 mt-1 shrink-0 text-accent-foreground/50" />
@@ -82,7 +82,7 @@ export const SearchRelated: React.FC<SearchRelatedProps> = ({
                   variant="link"
                   className="flex-1 justify-start px-0 py-1 h-fit font-semibold text-accent-foreground/50 whitespace-normal text-left"
                   type="submit"
-                  name={"related_query"}
+                  name={'related_query'}
                   value={item?.query}
                 >
                   {item?.query}

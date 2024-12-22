@@ -1,7 +1,7 @@
-import { tool } from "ai";
-import { retrieveSchema } from "@/lib/schema/retrieve";
-import { ToolProps } from "./index";
-import { SearchResults as SearchResultsType } from "@/lib/types";
+import { tool } from 'ai';
+import { retrieveSchema } from '@/lib/schema/retrieve';
+import { ToolProps } from './index';
+import { SearchResults as SearchResultsType } from '@/lib/types';
 
 const CONTENT_CHARACTER_LIMIT = 10000;
 
@@ -10,10 +10,10 @@ async function fetchJinaReaderData(
 ): Promise<SearchResultsType | null> {
   try {
     const response = await fetch(`https://r.jina.ai/${url}`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "X-With-Generated-Alt": "true",
+        Accept: 'application/json',
+        'X-With-Generated-Alt': 'true',
       },
     });
     const json = await response.json();
@@ -31,45 +31,45 @@ async function fetchJinaReaderData(
           url: json.data.url,
         },
       ],
-      query: "",
+      query: '',
       images: [],
     };
   } catch (error) {
-    console.error("Jina Reader API error:", error);
+    console.error('Jina Reader API error:', error);
     return null;
   }
 }
 
 export const retrieveTool = ({ streamingData, fullResponse }: ToolProps) =>
   tool({
-    description: "Retrieve content from the web",
+    description: 'Retrieve content from the web',
     parameters: retrieveSchema,
     execute: async ({ url }) => {
       // Append the search section
       streamingData.append({
-        type: "retrieve-start",
+        type: 'retrieve-start',
         content: {
           url,
-          status: "loading",
+          status: 'loading',
         },
       });
 
       let results: SearchResultsType | null;
 
       results = await fetchJinaReaderData(url);
-      console.log("results", results);
+      console.log('results', results);
       if (!results) {
         fullResponse = `An error occurred while retrieving "${url}".`;
         streamingData.append({
-          type: "retrieve-data",
-          content: { status: "error", url },
+          type: 'retrieve-data',
+          content: { status: 'error', url },
         });
         return results;
       }
 
       streamingData.append({
-        type: "retrieve-data",
-        content: { status: "complete", data: results },
+        type: 'retrieve-data',
+        content: { status: 'complete', data: results },
       });
 
       return results;

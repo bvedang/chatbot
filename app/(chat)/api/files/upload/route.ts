@@ -5,13 +5,13 @@ import { auth } from '@clerk/nextjs/server';
 
 const FileSchema = z.object({
   file: z
-      .instanceof(Blob)
-      .refine((file) => file.size <= 5 * 1024 * 1024, {
-        message: 'File size should be less than 5MB',
-      })
-      .refine((file) => ['image/jpeg', 'image/png'].includes(file.type), {
-        message: 'File type should be JPEG or PNG',
-      }),
+    .instanceof(Blob)
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: 'File size should be less than 5MB',
+    })
+    .refine((file) => ['image/jpeg', 'image/png'].includes(file.type), {
+      message: 'File type should be JPEG or PNG',
+    }),
 });
 
 export async function POST(request: Request) {
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
 
     if (!validatedFile.success) {
       const errorMessage = validatedFile.error.errors
-          .map((error) => error.message)
-          .join(', ');
+        .map((error) => error.message)
+        .join(', ');
 
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
@@ -57,8 +57,8 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     return NextResponse.json(
-        { error: 'Failed to process request' },
-        { status: 500 },
+      { error: 'Failed to process request' },
+      { status: 500 },
     );
   }
 }

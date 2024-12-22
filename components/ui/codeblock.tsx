@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { FC, memo } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { FC, memo } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { Button } from "@/components/ui/button";
-import { generateId } from "ai";
-import { Check, Copy, Download } from "lucide-react";
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { Button } from '@/components/ui/button';
+import { generateId } from 'ai';
+import { Check, Copy, Download } from 'lucide-react';
 
 interface Props {
   language: string;
@@ -19,52 +19,52 @@ interface languageMap {
 }
 
 export const programmingLanguages: languageMap = {
-  javascript: ".js",
-  python: ".py",
-  java: ".java",
-  c: ".c",
-  cpp: ".cpp",
-  "c++": ".cpp",
-  "c#": ".cs",
-  ruby: ".rb",
-  php: ".php",
-  swift: ".swift",
-  "objective-c": ".m",
-  kotlin: ".kt",
-  typescript: ".ts",
-  go: ".go",
-  perl: ".pl",
-  rust: ".rs",
-  scala: ".scala",
-  haskell: ".hs",
-  lua: ".lua",
-  shell: ".sh",
-  sql: ".sql",
-  html: ".html",
-  css: ".css",
+  javascript: '.js',
+  python: '.py',
+  java: '.java',
+  c: '.c',
+  cpp: '.cpp',
+  'c++': '.cpp',
+  'c#': '.cs',
+  ruby: '.rb',
+  php: '.php',
+  swift: '.swift',
+  'objective-c': '.m',
+  kotlin: '.kt',
+  typescript: '.ts',
+  go: '.go',
+  perl: '.pl',
+  rust: '.rs',
+  scala: '.scala',
+  haskell: '.hs',
+  lua: '.lua',
+  shell: '.sh',
+  sql: '.sql',
+  html: '.html',
+  css: '.css',
 };
 
 const CodeBlock: FC<Props> = memo(({ language, value }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
 
   const downloadAsFile = () => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return;
     }
-    const fileExtension = programmingLanguages[language] || ".file";
+    const fileExtension = programmingLanguages[language] || '.file';
     const suggestedFileName = `file-${generateId()}${fileExtension}`;
-    const fileName = window.prompt("Enter file name", suggestedFileName);
+    const fileName = window.prompt('Enter file name', suggestedFileName);
 
     if (!fileName) {
       return;
     }
 
-    const blob = new Blob([value], { type: "text/plain" });
+    const blob = new Blob([value], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.download = fileName;
     link.href = url;
-    link.style.display = "none";
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -112,17 +112,17 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
         showLineNumbers
         customStyle={{
           margin: 0,
-          width: "100%",
-          background: "transparent",
-          padding: "1.5rem 1rem",
+          width: '100%',
+          background: 'transparent',
+          padding: '1.5rem 1rem',
         }}
         lineNumberStyle={{
-          userSelect: "none",
+          userSelect: 'none',
         }}
         codeTagProps={{
           style: {
-            fontSize: "0.9rem",
-            fontFamily: "var(--font-mono)",
+            fontSize: '0.9rem',
+            fontFamily: 'var(--font-mono)',
           },
         }}
       >
@@ -131,6 +131,6 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     </div>
   );
 });
-CodeBlock.displayName = "CodeBlock";
+CodeBlock.displayName = 'CodeBlock';
 
 export { CodeBlock };

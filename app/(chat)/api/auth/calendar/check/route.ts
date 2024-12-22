@@ -1,9 +1,9 @@
 // app/api/google-calendar/verify/route.ts
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { PrismaClient } from "@prisma/client";
-import { google } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
+import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { PrismaClient } from '@prisma/client';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 const prisma = new PrismaClient();
 
@@ -20,7 +20,7 @@ export async function GET() {
     // Get the current session
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user's Google Calendar credentials
@@ -33,7 +33,7 @@ export async function GET() {
     if (!userGoogleCalendar) {
       return NextResponse.json({
         isConnected: false,
-        message: "No Google Calendar connection found",
+        message: 'No Google Calendar connection found',
       });
     }
 
@@ -65,13 +65,13 @@ export async function GET() {
 
         return NextResponse.json({
           isConnected: true,
-          message: "Connected with refreshed token",
+          message: 'Connected with refreshed token',
         });
       } catch (error) {
-        console.error("Error refreshing token:", error);
+        console.error('Error refreshing token:', error);
         return NextResponse.json({
           isConnected: false,
-          message: "Token refresh failed",
+          message: 'Token refresh failed',
         });
       }
     }
@@ -82,7 +82,7 @@ export async function GET() {
       refresh_token: userGoogleCalendar.refreshToken,
     });
 
-    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
     // Try to list calendars (minimal request to verify access)
     await calendar.calendarList.list({
@@ -91,16 +91,16 @@ export async function GET() {
 
     return NextResponse.json({
       isConnected: true,
-      message: "Successfully connected to Google Calendar",
+      message: 'Successfully connected to Google Calendar',
     });
   } catch (error) {
-    console.error("Verification error:", error);
+    console.error('Verification error:', error);
     return NextResponse.json(
       {
         isConnected: false,
-        message: "Failed to verify Google Calendar connection",
+        message: 'Failed to verify Google Calendar connection',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

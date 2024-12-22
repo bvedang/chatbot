@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-"use client";
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Carousel,
   type CarouselApi,
@@ -18,9 +18,9 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { useEffect, useState } from "react";
-import { SearchResultImage } from "@/lib/types";
+} from '@/components/ui/carousel';
+import { useEffect, useState } from 'react';
+import { SearchResultImage } from '@/lib/types';
 
 interface SearchResultsImageSectionProps {
   images: SearchResultImage[];
@@ -44,7 +44,7 @@ export const SearchResultsImageSection: React.FC<
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
 
-    api.on("select", () => {
+    api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
@@ -60,10 +60,10 @@ export const SearchResultsImageSection: React.FC<
   }
 
   let convertedImages: { url: string; description: string }[] = [];
-  if (typeof images[0] === "string") {
+  if (typeof images[0] === 'string') {
     convertedImages = (images as string[]).map((image) => ({
       url: image,
-      description: "",
+      description: '',
     }));
   } else {
     convertedImages = images as { url: string; description: string }[];
@@ -90,7 +90,7 @@ export const SearchResultsImageSection: React.FC<
                     alt={`Image ${index + 1}`}
                     className="size-full object-cover"
                     onError={(e) =>
-                      (e.currentTarget.src = "/images/placeholder-image.png")
+                      (e.currentTarget.src = '/images/placeholder-image.png')
                     }
                   />
                 </CardContent>
@@ -117,7 +117,7 @@ export const SearchResultsImageSection: React.FC<
                           className="h-auto w-full object-contain max-h-[60vh]"
                           onError={(e) =>
                             (e.currentTarget.src =
-                              "/images/placeholder-image.png")
+                              '/images/placeholder-image.png')
                           }
                         />
                       </div>

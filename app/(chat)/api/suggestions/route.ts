@@ -1,15 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
-import { PrismaClient } from "@prisma/client";
+import { auth } from '@clerk/nextjs/server';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const documentId = searchParams.get("documentId");
+  const documentId = searchParams.get('documentId');
   const { userId } = await auth();
 
   if (!documentId || !userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   try {
@@ -22,8 +22,8 @@ export async function GET(request: Request) {
 
     return Response.json(suggestions, { status: 200 });
   } catch (error) {
-    console.error("Failed to fetch suggestions:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error('Failed to fetch suggestions:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }
 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   try {
@@ -40,9 +40,9 @@ export async function POST(request: Request) {
       data: suggestions,
     });
 
-    return new Response("Created", { status: 201 });
+    return new Response('Created', { status: 201 });
   } catch (error) {
-    console.error("Failed to create suggestions:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error('Failed to create suggestions:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }

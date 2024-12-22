@@ -1,7 +1,7 @@
-import React from "react";
-import { Section } from "@/components/section";
-import { SearchResults } from "./search-result";
-import { SearchResults as SearchResultsType } from "@/lib/types";
+import React from 'react';
+import { Section } from '@/components/section';
+import { SearchResults } from './search-result';
+import { SearchResults as SearchResultsType } from '@/lib/types';
 
 interface RetrieveSectionProps {
   data: SearchResultsType;

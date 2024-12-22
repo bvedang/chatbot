@@ -1,8 +1,8 @@
-import { tool, StreamData } from "ai";
-import { headers } from "next/headers";
-import { createStreamableUI, createStreamableValue } from "ai/rsc";
-import { searchSchema } from "@/lib/schema/search";
-import { SearchSection } from "@/components/search-section";
+import { tool, StreamData } from 'ai';
+import { headers } from 'next/headers';
+import { createStreamableUI, createStreamableValue } from 'ai/rsc';
+import { searchSchema } from '@/lib/schema/search';
+import { SearchSection } from '@/components/search-section';
 import {
   SearchResultImage,
   SearchResults,
@@ -10,7 +10,7 @@ import {
   SearXNGResponse,
   SearXNGResult,
   SearchResults as SearchResultsType,
-} from "@/lib/types";
+} from '@/lib/types';
 
 export interface ToolProps {
   streamingData: StreamData;
@@ -19,7 +19,7 @@ export interface ToolProps {
 
 export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
   tool({
-    description: "Search the web for information",
+    description: 'Search the web for information',
     parameters: searchSchema,
     execute: async ({
       query,
@@ -30,7 +30,7 @@ export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
     }) => {
       let hasError = false;
       streamingData.append({
-        type: "search-start",
+        type: 'search-start',
         content: {
           query,
           includeDomains: include_domains || [],
@@ -39,7 +39,7 @@ export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
 
       // Tavily API requires a minimum of 5 characters in the query
       const filledQuery =
-        query.length < 5 ? query + " ".repeat(5 - query.length) : query;
+        query.length < 5 ? query + ' '.repeat(5 - query.length) : query;
       let searchResult: SearchResults;
 
       const effectiveSearchDepth = process.env.SEARXNG_DEFAULT_DEPTH;
@@ -48,12 +48,12 @@ export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
         searchResult = await searxngSearch(
           filledQuery,
           max_results,
-          effectiveSearchDepth === "advanced" ? "advanced" : "basic",
+          effectiveSearchDepth === 'advanced' ? 'advanced' : 'basic',
           include_domains,
-          exclude_domains
+          exclude_domains,
         );
       } catch (error) {
-        console.error("Search API error:", error);
+        console.error('Search API error:', error);
         hasError = true;
         searchResult = {
           results: [],
@@ -66,12 +66,12 @@ export const searchTool = ({ streamingData, fullResponse }: ToolProps) =>
       if (hasError) {
         fullResponse = `An error occurred while searching for "${filledQuery}".`;
         streamingData.append({
-          type: "search-error",
+          type: 'search-error',
           content: filledQuery,
         });
       }
       streamingData.append({
-        type: "search-complete",
+        type: 'search-complete',
         content: {
           query: filledQuery,
           resultCount: searchResult.number_of_results || 0,
@@ -87,40 +87,40 @@ async function searxngSearch(
   maxResults: number = 10,
   searchDepth: string,
   includeDomains: string[] = [],
-  excludeDomains: string[] = []
+  excludeDomains: string[] = [],
 ): Promise<SearchResults> {
   const apiUrl = process.env.SEARXNG_API_URL;
   if (!apiUrl) {
-    throw new Error("SEARXNG_API_URL is not set in the environment variables");
+    throw new Error('SEARXNG_API_URL is not set in the environment variables');
   }
 
   try {
     // Construct the URL with query parameters
     const url = new URL(`${apiUrl}/search`);
-    url.searchParams.append("q", query);
-    url.searchParams.append("format", "json");
-    url.searchParams.append("categories", "general,images, map");
+    url.searchParams.append('q', query);
+    url.searchParams.append('format', 'json');
+    url.searchParams.append('categories', 'general,images, map');
 
     // Apply search depth settings
-    if (searchDepth === "advanced") {
-      url.searchParams.append("time_range", "");
-      url.searchParams.append("safesearch", "0");
-      url.searchParams.append("engines", "google,bing,duckduckgo,wikipedia");
+    if (searchDepth === 'advanced') {
+      url.searchParams.append('time_range', '');
+      url.searchParams.append('safesearch', '0');
+      url.searchParams.append('engines', 'google,bing,duckduckgo,wikipedia');
     } else {
-      url.searchParams.append("time_range", "year");
-      url.searchParams.append("safesearch", "1");
-      url.searchParams.append("engines", "google,bing");
+      url.searchParams.append('time_range', 'year');
+      url.searchParams.append('safesearch', '1');
+      url.searchParams.append('engines', 'google,bing');
     }
     // Fetch results from SearXNG
 
     const response = await fetch(url.toString(), {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Accept: "application/json",
-        "X-Forwarded-For": "127.0.0.1",
-        "X-Real-IP": "127.0.0.1",
-        "User-Agent": "NextJS-Local-Dev/1.0",
-        Origin: "http://localhost:3000",
+        Accept: 'application/json',
+        'X-Forwarded-For': '127.0.0.1',
+        'X-Real-IP': '127.0.0.1',
+        'User-Agent': 'NextJS-Local-Dev/1.0',
+        Origin: 'http://localhost:3000',
       },
     });
 
@@ -128,7 +128,7 @@ async function searxngSearch(
       const errorText = await response.text();
       console.error(`SearXNG API error (${response.status}):`, errorText);
       throw new Error(
-        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`
+        `SearXNG API error: ${response.status} ${response.statusText} - ${errorText}`,
       );
     }
 
@@ -149,19 +149,19 @@ async function searxngSearch(
           title: result.title,
           url: result.url,
           content: result.content,
-        })
+        }),
       ),
       query: data.query,
       images: imageResults
         .map((result) => {
-          const imgSrc = result.img_src || "";
-          return imgSrc.startsWith("http") ? imgSrc : `${apiUrl}${imgSrc}`;
+          const imgSrc = result.img_src || '';
+          return imgSrc.startsWith('http') ? imgSrc : `${apiUrl}${imgSrc}`;
         })
         .filter(Boolean),
       number_of_results: data.number_of_results,
     };
   } catch (error) {
-    console.error("SearXNG API error:", error);
+    console.error('SearXNG API error:', error);
     throw error;
   }
 }

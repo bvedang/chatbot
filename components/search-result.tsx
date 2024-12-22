@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CardContent, Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { SearchResultItem } from "@/lib/types";
+import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CardContent, Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { SearchResultItem } from '@/lib/types';
 
 export interface SearchResultsProps {
   results: SearchResultItem[];
@@ -23,8 +23,8 @@ export function SearchResults({ results }: SearchResultsProps) {
   const additionalResultsCount = results.length > 3 ? results.length - 3 : 0;
   const displayUrlName = (url: string) => {
     const hostname = new URL(url).hostname;
-    const parts = hostname.split(".");
-    return parts.length > 2 ? parts.slice(1, -1).join(".") : parts[0];
+    const parts = hostname.split('.');
+    return parts.length > 2 ? parts.slice(1, -1).join('.') : parts[0];
   };
 
   return (
@@ -38,7 +38,7 @@ export function SearchResults({ results }: SearchResultsProps) {
                   {result.title || result.content}
                 </p>
                 <div className="mt-2 flex items-center space-x-1">
-                  <Avatar className="h-4 w-4">
+                  <Avatar className="size-4">
                     <AvatarImage
                       src={`https://www.google.com/s2/favicons?domain=${
                         new URL(result.url).hostname
@@ -63,7 +63,7 @@ export function SearchResults({ results }: SearchResultsProps) {
           <Card className="flex-1 flex h-full items-center justify-center">
             <CardContent className="p-2">
               <Button
-                variant={"link"}
+                variant={'link'}
                 className="text-muted-foreground"
                 onClick={handleViewMore}
               >

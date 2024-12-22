@@ -1,25 +1,25 @@
 function getCurrentDateTime() {
   const now = new Date();
   const offset = -now.getTimezoneOffset();
-  const sign = offset >= 0 ? "+" : "-";
+  const sign = offset >= 0 ? '+' : '-';
   const pad = (num: number) =>
-    String(Math.floor(Math.abs(num))).padStart(2, "0");
+    String(Math.floor(Math.abs(num))).padStart(2, '0');
 
   return (
     now.getFullYear() +
-    "-" +
+    '-' +
     pad(now.getMonth() + 1) +
-    "-" +
+    '-' +
     pad(now.getDate()) +
-    "T" +
+    'T' +
     pad(now.getHours()) +
-    ":" +
+    ':' +
     pad(now.getMinutes()) +
-    ":" +
+    ':' +
     pad(now.getSeconds()) +
     sign +
     pad(offset / 60) +
-    ":" +
+    ':' +
     pad(offset % 60)
   );
 }
@@ -50,7 +50,7 @@ export const blocksPrompt = `
   `;
 
 export const regularPrompt =
-  "You are a friendly assistant! Keep your responses concise and helpful.";
+  'You are a friendly assistant! Keep your responses concise and helpful.';
 
 export const calendarPrompt = `
   Calendar Tools Guide:

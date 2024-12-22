@@ -1,30 +1,30 @@
-import { z } from "zod";
-import { auth } from "@clerk/nextjs/server";
-import { Message, PrismaClient, Suggestion } from "@prisma/client";
+import { z } from 'zod';
+import { auth } from '@clerk/nextjs/server';
+import { Message, PrismaClient, Suggestion } from '@prisma/client';
 import {
   CoreUserMessage,
   StreamData,
   convertToCoreMessages,
   streamObject,
   streamText,
-} from "ai";
-import { customModel } from "@/lib/ai";
-import { models } from "@/lib/ai/models";
-import { systemPrompt } from "@/lib/ai/prompts";
+} from 'ai';
+import { customModel } from '@/lib/ai';
+import { models } from '@/lib/ai/models';
+import { systemPrompt } from '@/lib/ai/prompts';
 import {
   generateUUID,
   getMostRecentUserMessage,
   sanitizeResponseMessages,
-} from "@/lib/utils";
+} from '@/lib/utils';
 
 import {
   getChatById,
   saveChat,
   saveMessages,
   saveSuggestions,
-} from "@/lib/db/queries";
-import { generateTitleFromUserMessage } from "../../actions";
-import { calendar_v3, google } from "googleapis";
+} from '@/lib/db/queries';
+import { generateTitleFromUserMessage } from '../../actions';
+import { calendar_v3, google } from 'googleapis';
 import {
   CalendarEvent,
   CalendarEventResponse,
@@ -32,9 +32,9 @@ import {
   CreateCalendarEventParams,
   ListCalendarEventsParams,
   AllowedTools,
-} from "../../../../types/chat-api";
-import { getTools } from "@/lib/agents/tools";
-import { AnswerSection } from "@/components/answer-section";
+} from '../../../../types/chat-api';
+import { getTools } from '@/lib/agents/tools';
+import { AnswerSection } from '@/components/answer-section';
 
 const prisma = new PrismaClient();
 export const maxDuration = 60;
@@ -42,25 +42,25 @@ export const maxDuration = 60;
 function getCurrentDateTime() {
   const now = new Date();
   const offset = -now.getTimezoneOffset();
-  const sign = offset >= 0 ? "+" : "-";
+  const sign = offset >= 0 ? '+' : '-';
   const pad = (num: number) =>
-    String(Math.floor(Math.abs(num))).padStart(2, "0");
+    String(Math.floor(Math.abs(num))).padStart(2, '0');
 
   return (
     now.getFullYear() +
-    "-" +
+    '-' +
     pad(now.getMonth() + 1) +
-    "-" +
+    '-' +
     pad(now.getDate()) +
-    "T" +
+    'T' +
     pad(now.getHours()) +
-    ":" +
+    ':' +
     pad(now.getMinutes()) +
-    ":" +
+    ':' +
     pad(now.getSeconds()) +
     sign +
     pad(offset / 60) +
-    ":" +
+    ':' +
     pad(offset % 60)
   );
 }
@@ -77,52 +77,52 @@ const dateTimeSchema = z.string().refine((val) => {
   const date = new Date(val);
   const now = new Date();
   return !isNaN(date.getTime()) && date >= now;
-}, "DateTime must be valid and not in the past");
+}, 'DateTime must be valid and not in the past');
 
 const blocksTools: AllowedTools[] = [
-  "createDocument",
-  "updateDocument",
-  "requestSuggestions",
+  'createDocument',
+  'updateDocument',
+  'requestSuggestions',
 ];
 
-const weatherTools: AllowedTools[] = ["getWeather"];
+const weatherTools: AllowedTools[] = ['getWeather'];
 const calendarTools: AllowedTools[] = [
-  "createCalendarEvent",
-  "listCalendarEvents",
+  'createCalendarEvent',
+  'listCalendarEvents',
 ];
 const allTools: AllowedTools[] = [
   ...blocksTools,
   ...weatherTools,
   ...calendarTools,
-  "search",
-  "retrieve",
+  'search',
+  'retrieve',
 ];
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
+  process.env.GOOGLE_REDIRECT_URI,
 );
 
-const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 export async function POST(request: Request) {
   const { id, messages, modelId } = await request.json();
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   const model = models.find((model) => model.id === modelId);
   if (!model) {
-    return new Response("Model not found", { status: 404 });
+    return new Response('Model not found', { status: 404 });
   }
 
   const coreMessages = convertToCoreMessages(messages);
   const userMessage = getMostRecentUserMessage(coreMessages);
   if (!userMessage) {
-    return new Response("No user message found", { status: 400 });
+    return new Response('No user message found', { status: 400 });
   }
 
   const chat = await getChatById({ id });
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
   });
 
   const streamingData = new StreamData();
-  streamingData.append({ type: "user-message-id", content: userMessageId });
+  streamingData.append({ type: 'user-message-id', content: userMessageId });
 
   const result = streamText({
     model: customModel(model.apiIdentifier),
@@ -155,51 +155,51 @@ export async function POST(request: Request) {
     maxSteps: 5,
     experimental_activeTools: allTools,
     tools: {
-      ...getTools({ streamingData, fullResponse: "" }),
+      ...getTools({ streamingData, fullResponse: '' }),
       getWeather: {
-        description: "Get the current weather at a location",
+        description: 'Get the current weather at a location',
         parameters: z.object({
           latitude: z.number(),
           longitude: z.number(),
         }),
         execute: async ({ latitude, longitude }) => {
           const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
           );
           return await response.json();
         },
       },
       createDocument: {
-        description: "Create a document for a writing activity",
+        description: 'Create a document for a writing activity',
         parameters: z.object({
           title: z.string(),
         }),
         execute: async ({ title }) => {
           const id = generateUUID();
-          let draftText = "";
+          let draftText = '';
 
-          streamingData.append({ type: "id", content: id });
-          streamingData.append({ type: "title", content: title });
-          streamingData.append({ type: "clear", content: "" });
+          streamingData.append({ type: 'id', content: id });
+          streamingData.append({ type: 'title', content: title });
+          streamingData.append({ type: 'clear', content: '' });
 
           const { fullStream } = streamText({
             model: customModel(model.apiIdentifier),
             system:
-              "Write about the given topic. Markdown is supported. Use headings wherever appropriate.",
+              'Write about the given topic. Markdown is supported. Use headings wherever appropriate.',
             prompt: title,
           });
 
           for await (const delta of fullStream) {
-            if (delta.type === "text-delta") {
+            if (delta.type === 'text-delta') {
               draftText += delta.textDelta;
               streamingData.append({
-                type: "text-delta",
+                type: 'text-delta',
                 content: delta.textDelta,
               });
             }
           }
 
-          streamingData.append({ type: "finish", content: "" });
+          streamingData.append({ type: 'finish', content: '' });
 
           await prisma.document.create({
             data: {
@@ -214,53 +214,53 @@ export async function POST(request: Request) {
           return {
             id,
             title,
-            content: "A document was created and is now visible to the user.",
+            content: 'A document was created and is now visible to the user.',
           };
         },
       },
       updateDocument: {
-        description: "Update a document with the given description",
+        description: 'Update a document with the given description',
         parameters: z.object({
-          id: z.string().describe("The ID of the document to update"),
+          id: z.string().describe('The ID of the document to update'),
           description: z
             .string()
-            .describe("The description of changes that need to be made"),
+            .describe('The description of changes that need to be made'),
         }),
         execute: async ({ id, description }) => {
           const document = await prisma.document.findUnique({ where: { id } });
           if (!document) {
-            return { error: "Document not found" };
+            return { error: 'Document not found' };
           }
 
-          let draftText = "";
-          streamingData.append({ type: "clear", content: document.title });
+          let draftText = '';
+          streamingData.append({ type: 'clear', content: document.title });
 
           const { fullStream } = streamText({
             model: customModel(model.apiIdentifier),
             system:
-              "You are a helpful writing assistant. Based on the description, please update the piece of writing.",
+              'You are a helpful writing assistant. Based on the description, please update the piece of writing.',
             experimental_providerMetadata: {
               openai: {
-                prediction: { type: "content", content: document.content },
+                prediction: { type: 'content', content: document.content },
               },
             },
             messages: [
-              { role: "user", content: description },
-              { role: "user", content: document.content },
+              { role: 'user', content: description },
+              { role: 'user', content: document.content },
             ],
           });
 
           for await (const delta of fullStream) {
-            if (delta.type === "text-delta") {
+            if (delta.type === 'text-delta') {
               draftText += delta.textDelta;
               streamingData.append({
-                type: "text-delta",
+                type: 'text-delta',
                 content: delta.textDelta,
               });
             }
           }
 
-          streamingData.append({ type: "finish", content: "" });
+          streamingData.append({ type: 'finish', content: '' });
 
           await prisma.document.update({
             where: { id },
@@ -272,40 +272,40 @@ export async function POST(request: Request) {
           return {
             id,
             title: document.title,
-            content: "The document has been updated successfully.",
+            content: 'The document has been updated successfully.',
           };
         },
       },
       requestSuggestions: {
-        description: "Request suggestions for a document",
+        description: 'Request suggestions for a document',
         parameters: z.object({
           documentId: z
             .string()
-            .describe("The ID of the document to request edits"),
+            .describe('The ID of the document to request edits'),
         }),
         execute: async ({ documentId }) => {
           const document = await prisma.document.findUnique({
             where: { id: documentId },
           });
           if (!document || !document.content) {
-            return { error: "Document not found" };
+            return { error: 'Document not found' };
           }
 
           const suggestions: Array<
-            Omit<Suggestion, "userId" | "createdAt" | "documentCreatedAt">
+            Omit<Suggestion, 'userId' | 'createdAt' | 'documentCreatedAt'>
           > = [];
           const { elementStream } = streamObject({
             model: customModel(model.apiIdentifier),
             system:
-              "You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words. Max 5 suggestions.",
+              'You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words. Max 5 suggestions.',
             prompt: document.content,
-            output: "array",
+            output: 'array',
             schema: z.object({
-              originalSentence: z.string().describe("The original sentence"),
-              suggestedSentence: z.string().describe("The suggested sentence"),
+              originalSentence: z.string().describe('The original sentence'),
+              suggestedSentence: z.string().describe('The suggested sentence'),
               description: z
                 .string()
-                .describe("The description of the suggestion"),
+                .describe('The description of the suggestion'),
             }),
           });
 
@@ -320,7 +320,7 @@ export async function POST(request: Request) {
             };
 
             streamingData.append({
-              type: "suggestion",
+              type: 'suggestion',
               content: suggestion,
             });
 
@@ -339,44 +339,44 @@ export async function POST(request: Request) {
           return {
             id: documentId,
             title: document.title,
-            message: "Suggestions have been added to the document",
+            message: 'Suggestions have been added to the document',
           };
         },
       },
       createCalendarEvent: {
         description:
-          "Create new events in Google Calendar - supports both single and multiple related events",
+          'Create new events in Google Calendar - supports both single and multiple related events',
         parameters: z.object({
-          summary: z.string().describe("Title of the event"),
+          summary: z.string().describe('Title of the event'),
           description: z
             .string()
             .optional()
-            .describe("Description of the event"),
+            .describe('Description of the event'),
           startDateTime: dateTimeSchema
             .default(getCurrentDateTime)
-            .describe("Start time in ISO format (defaults to current time)"),
+            .describe('Start time in ISO format (defaults to current time)'),
           endDateTime: z
             .string()
             .optional()
             .describe(
-              "End time in ISO format (defaults to start time + 1 hour)"
+              'End time in ISO format (defaults to start time + 1 hour)',
             ),
           attendees: z
             .array(z.string())
             .optional()
-            .describe("List of attendee email addresses"),
+            .describe('List of attendee email addresses'),
 
           // Multiple events support
           eventPattern: z
             .enum([
-              "single",
-              "work-with-breaks",
-              "meeting-series",
-              "split-session",
+              'single',
+              'work-with-breaks',
+              'meeting-series',
+              'split-session',
             ])
-            .default("single")
+            .default('single')
             .describe(
-              "Pattern for event creation: single event, work session with breaks (breaks should not overlap work sessions), meeting series, or split session"
+              'Pattern for event creation: single event, work session with breaks (breaks should not overlap work sessions), meeting series, or split session',
             ),
 
           // Work session specific parameters
@@ -384,19 +384,19 @@ export async function POST(request: Request) {
             .number()
             .optional()
             .describe(
-              "Total duration in hours (required for work-with-breaks and split-session patterns)"
+              'Total duration in hours (required for work-with-breaks and split-session patterns)',
             ),
           breakDuration: z
             .number()
             .optional()
             .default(0.25)
-            .describe("Break duration in hours (defaults to 15 minutes)"),
+            .describe('Break duration in hours (defaults to 15 minutes)'),
           workSegmentDuration: z
             .number()
             .optional()
             .default(1.25)
             .describe(
-              "Duration of each work segment in hours (defaults to 75 minutes)"
+              'Duration of each work segment in hours (defaults to 75 minutes)',
             ),
         }),
 
@@ -420,7 +420,7 @@ export async function POST(request: Request) {
             if (!userCalendarCreds?.accessToken) {
               return {
                 error:
-                  "Google Calendar not connected. Please connect your calendar first.",
+                  'Google Calendar not connected. Please connect your calendar first.',
               };
             }
 
@@ -435,7 +435,7 @@ export async function POST(request: Request) {
             const baseStartTime = startDateTime || getCurrentDateTime();
             let currentTime = new Date(baseStartTime);
             switch (eventPattern) {
-              case "single":
+              case 'single':
                 events = [
                   {
                     summary,
@@ -447,11 +447,11 @@ export async function POST(request: Request) {
                 ];
                 break;
 
-              case "work-with-breaks":
+              case 'work-with-breaks':
                 if (!totalDuration) {
                   return {
                     error:
-                      "Total duration is required for work sessions with breaks",
+                      'Total duration is required for work sessions with breaks',
                   };
                 }
 
@@ -461,7 +461,7 @@ export async function POST(request: Request) {
                   // Add work segment
                   const workDuration = Math.min(
                     workSegmentDuration,
-                    remainingDuration
+                    remainingDuration,
                   );
                   events.push({
                     summary,
@@ -469,42 +469,42 @@ export async function POST(request: Request) {
                     startDateTime: currentTime.toISOString(),
                     endDateTime: addHours(
                       currentTime.toISOString(),
-                      workDuration
+                      workDuration,
                     ),
                     attendees,
                   });
 
                   remainingDuration -= workDuration;
                   currentTime = new Date(
-                    addHours(currentTime.toISOString(), workDuration)
+                    addHours(currentTime.toISOString(), workDuration),
                   );
 
                   // Add break if there's more work to come
                   if (remainingDuration > 0) {
                     events.push({
-                      summary: "Break",
+                      summary: 'Break',
                       startDateTime: currentTime.toISOString(),
                       endDateTime: addHours(
                         currentTime.toISOString(),
-                        breakDuration
+                        breakDuration,
                       ),
                     });
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), breakDuration)
+                      addHours(currentTime.toISOString(), breakDuration),
                     );
                   }
                 }
                 break;
 
-              case "split-session":
+              case 'split-session':
                 if (!totalDuration) {
                   return {
-                    error: "Total duration is required for split sessions",
+                    error: 'Total duration is required for split sessions',
                   };
                 }
 
                 const segmentCount = Math.ceil(
-                  totalDuration / workSegmentDuration
+                  totalDuration / workSegmentDuration,
                 );
 
                 for (let i = 0; i < segmentCount; i++) {
@@ -514,7 +514,7 @@ export async function POST(request: Request) {
                     startDateTime: currentTime.toISOString(),
                     endDateTime: addHours(
                       currentTime.toISOString(),
-                      workSegmentDuration
+                      workSegmentDuration,
                     ),
                     attendees,
                   });
@@ -522,18 +522,18 @@ export async function POST(request: Request) {
                   // Add break between segments if not the last segment
                   if (i < segmentCount - 1) {
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), workSegmentDuration)
+                      addHours(currentTime.toISOString(), workSegmentDuration),
                     );
                     events.push({
-                      summary: "Break",
+                      summary: 'Break',
                       startDateTime: currentTime.toISOString(),
                       endDateTime: addHours(
                         currentTime.toISOString(),
-                        breakDuration
+                        breakDuration,
                       ),
                     });
                     currentTime = new Date(
-                      addHours(currentTime.toISOString(), breakDuration)
+                      addHours(currentTime.toISOString(), breakDuration),
                     );
                   }
                 }
@@ -544,7 +544,7 @@ export async function POST(request: Request) {
             const results: any[] = [];
             for (const event of events) {
               const response = await calendar.events.insert({
-                calendarId: "primary",
+                calendarId: 'primary',
                 requestBody: {
                   summary: event.summary,
                   description: event.description,
@@ -570,11 +570,11 @@ export async function POST(request: Request) {
                 link: response.data.htmlLink,
                 attendees: response.data.attendees,
                 recurrence: response.data.recurrence,
-                status: "created",
+                status: 'created',
               };
 
               streamingData.append({
-                type: "calendar-event",
+                type: 'calendar-event',
                 content: {
                   id: createdEvent.id ?? null,
                   summary: createdEvent.summary ?? null,
@@ -606,13 +606,13 @@ export async function POST(request: Request) {
                 link: createdEvent.link,
                 attendees: createdEvent.attendees,
                 recurrence: createdEvent.recurrence,
-                status: "Event created successfully",
+                status: 'Event created successfully',
               });
             }
 
             return results;
           } catch (error) {
-            console.error("Failed to create calendar event:", error);
+            console.error('Failed to create calendar event:', error);
             return {
               error: `Failed to create calendar event: ${error}`,
             };
@@ -628,7 +628,7 @@ export async function POST(request: Request) {
           timeMin: z.string().optional(),
           timeMax: z.string().optional(),
           showDeleted: z.boolean().optional(),
-          orderBy: z.enum(["startTime", "updated"]).optional(),
+          orderBy: z.enum(['startTime', 'updated']).optional(),
           q: z.string().optional(),
         }),
         execute: async ({
@@ -636,7 +636,7 @@ export async function POST(request: Request) {
           timeMin,
           timeMax,
           showDeleted = false,
-          orderBy = "startTime",
+          orderBy = 'startTime',
           q,
         }) => {
           try {
@@ -649,7 +649,7 @@ export async function POST(request: Request) {
             if (!userCalendarCreds?.accessToken) {
               return {
                 error:
-                  "Google Calendar not connected. Please connect your calendar first.",
+                  'Google Calendar not connected. Please connect your calendar first.',
               };
             }
 
@@ -716,17 +716,17 @@ export async function POST(request: Request) {
             allEvents.sort(
               (a: calendar_v3.Schema$Event, b: calendar_v3.Schema$Event) => {
                 const aStart = new Date(
-                  a.start?.dateTime || a.start?.date || 0
+                  a.start?.dateTime || a.start?.date || 0,
                 );
                 const bStart = new Date(
-                  b.start?.dateTime || b.start?.date || 0
+                  b.start?.dateTime || b.start?.date || 0,
                 );
                 return aStart.getTime() - bStart.getTime();
-              }
+              },
             );
 
             streamingData.append({
-              type: "calendar-events-list",
+              type: 'calendar-events-list',
               content: allEvents,
             });
 
@@ -735,22 +735,22 @@ export async function POST(request: Request) {
               count: allEvents.length,
             };
           } catch (error) {
-            console.error("Failed to list calendar events:", error);
+            console.error('Failed to list calendar events:', error);
             return {
-              error: "Failed to fetch calendar events",
+              error: 'Failed to fetch calendar events',
             };
           }
         },
       },
     },
     onStepFinish: async (event) => {
-      if (event.stepType === "initial") {
+      if (event.stepType === 'initial') {
         if (event.toolCalls && event.toolCalls.length > 0) {
           // Handle tool results
           event.toolResults.forEach((result) => {
             if (
-              result.type === "search-result" ||
-              result.type === "retrieval-result"
+              result.type === 'search-result' ||
+              result.type === 'retrieval-result'
             ) {
               streamingData.append({
                 type: result.type,
@@ -771,7 +771,7 @@ export async function POST(request: Request) {
             (message) => {
               const messageId = generateUUID();
 
-              if (message.role === "assistant") {
+              if (message.role === 'assistant') {
                 streamingData.appendMessageAnnotation({
                   messageIdFromServer: messageId,
                 });
@@ -784,17 +784,17 @@ export async function POST(request: Request) {
                 content: message.content ?? {},
                 createdAt: new Date(),
               };
-            }
+            },
           ) as Message[],
         });
       } catch (error) {
-        console.error("Failed to save chat", error);
+        console.error('Failed to save chat', error);
       }
       streamingData.close();
     },
     experimental_telemetry: {
       isEnabled: true,
-      functionId: "stream-text",
+      functionId: 'stream-text',
     },
   });
 
@@ -803,15 +803,15 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
+  const id = searchParams.get('id');
   const { userId } = await auth();
 
   if (!id) {
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   }
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   const chat = await prisma.chat.findUnique({
@@ -819,7 +819,7 @@ export async function DELETE(request: Request) {
   });
 
   if (!chat || chat.userId !== userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   try {
@@ -839,9 +839,9 @@ export async function DELETE(request: Request) {
       }),
     ]);
 
-    return new Response("Chat deleted", { status: 200 });
+    return new Response('Chat deleted', { status: 200 });
   } catch (error) {
-    console.error("Failed to delete chat:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    console.error('Failed to delete chat:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }
