@@ -18,6 +18,7 @@ export const customModel = (apiIdentifier: string) => {
       });
     case "deepseek-chat":
       return wrapLanguageModel({
+        //@ts-expect-error
         model: deepseek("deepseek-chat"),
         middleware: customMiddleware,
       });
